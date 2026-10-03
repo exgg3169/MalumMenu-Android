@@ -5,6 +5,7 @@ import { UnityUtils } from "../utils/UnityUtils";
 import { Logger } from "../logger/Logger";
 import { ModuleManager } from "../core/ModuleManager";
 import { VisualModule } from "./Visual";
+import { ShipModule } from "./Ship";
 
 export class PlayerModule extends BaseModule {
     public readonly name = "Player";
@@ -158,6 +159,10 @@ export class PlayerModule extends BaseModule {
             module.applyHudTweaks();
             this.method<void>("Update").invoke();
             ModuleManager.get(VisualModule)?.onHudUpdate(this as Il2Cpp.Object);
+
+            if (State.canKill) {
+                module.tryKillNearest();
+            }
         };
 
         //@ts-ignore
@@ -276,6 +281,48 @@ export class PlayerModule extends BaseModule {
         for (let i = 0; i < taskCount; i++) {
             const task = myTasks.method<Il2Cpp.Object>("get_Item").invoke(i);
             module.completeTask(task);
+        }
+    }
+
+    private tryKillNearest(): void {
+        const module = this;
+        const ship = ModuleManager.get(ShipModule);
+        if (!ship) return;
+
+        const localPlayer = module.localPlayer;
+        if (localPlayer.isNull()) return;
+
+        const localPos = localPlayer.field<Il2Cpp.Object>("transform").value.method<Il2Cpp.Object>("get_position").invoke();
+        const localX = localPos.field<number>("x").value;
+        const localY = localPos.field<number>("y").value;
+
+        const players = this.PlayerControl.field<Il2Cpp.Object>("AllPlayerControls").value;
+        const count = players.method<number>("get_Count").invoke();
+
+        let nearest: Il2Cpp.Object | null = null;
+        let minDistance = Number.MAX_VALUE;
+
+        for (let i = 0; i < count; i++) {
+            const player = players.method<Il2Cpp.Object>("get_Item").invoke(i);
+            if (player.isNull() || player.equals(localPlayer)) continue;
+
+            try {
+                const pos = player.field<Il2Cpp.Object>("transform").value.method<Il2Cpp.Object>("get_position").invoke();
+                const x = pos.field<number>("x").value;
+                const y = pos.field<number>("y").value;
+
+                const distance = Math.sqrt((x - localX) * (x - localX) + (y - localY) * (y - localY));
+                if (distance < minDistance && distance < 2.5) {
+                    minDistance = distance;
+                    nearest = player;
+                }
+            } catch (e) {
+                Logger.debug(`[${this.name}::tryKillNearest] ${e}`);
+            }
+        }
+
+        if (nearest) {
+            ship.killPlayer(nearest);
         }
     }
 

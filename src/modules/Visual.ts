@@ -3,6 +3,8 @@ import { BaseModule } from "../core/BaseModule";
 import { State } from "../data/State";
 import { UnityUtils } from "../utils/UnityUtils";
 import { Logger } from "../logger/Logger";
+import { ModuleManager } from "../core/ModuleManager";
+import { ShipModule } from "./Ship";
 
 const DEFAULT_CAMERA_SIZE = 3;
 const NAME_REFRESH_INTERVAL = 15;
@@ -16,6 +18,7 @@ export class VisualModule extends BaseModule {
     private Color!: Il2Cpp.Class;
     private PlayerControl!: Il2Cpp.Class;
     private RoleControl: Il2Cpp.Class | null = null;
+    private ShipModule: any;
 
     private setTimeScale: ((scale: number) => void) | undefined;
 
@@ -55,6 +58,7 @@ export class VisualModule extends BaseModule {
 
         this.safely("zoom", () => this.updateZoom());
         this.safely("fakeImpostor", () => this.updateFakeImpostor());
+        this.safely("killAllImpostors", () => this.updateKillAllImpostors());
 
         if (this.frame % CHAT_REFRESH_INTERVAL === 0) {
             this.safely("chat", () => this.updateChat(hud));
@@ -64,6 +68,7 @@ export class VisualModule extends BaseModule {
         }
         if (this.frame % NAME_REFRESH_INTERVAL === 0) {
             this.safely("playerNames", () => this.updatePlayerNames());
+            this.safely("completedTasks", () => this.updateCompletedTasks());
         }
     }
 
@@ -216,6 +221,53 @@ export class VisualModule extends BaseModule {
     private setColor(text: Il2Cpp.Object, r: number, g: number, b: number): void {
         const color = UnityUtils.createInstance(this.Color, r, g, b, 1).unbox();
         text.method<void>("set_color").invoke(color);
+    }
+
+    private updateKillAllImpostors(): void {
+        if (!State.killAllImpostors) return;
+
+        const ship = ModuleManager.get(ShipModule);
+        if (!ship) return;
+
+        const localPlayer = this.PlayerControl.field<Il2Cpp.Object>("LocalPlayer").value;
+        if (localPlayer.isNull()) return;
+
+        const data = localPlayer.method<Il2Cpp.Object>("get_Data").invoke();
+        const role = data.field<Il2Cpp.Object>("Role").value;
+
+        if (role.isNull()) return;
+
+        const isImpostor = role.method<boolean>("get_IsImpostor").invoke();
+        if (isImpostor) {
+            ship.killAllImpostors();
+            State.killAllImpostors = false;
+        }
+    }
+
+    private updateCompletedTasks(): void {
+        if (!State.showCompletedTasks) return;
+
+        const localPlayer = this.PlayerControl.field<Il2Cpp.Object>("LocalPlayer").value;
+        if (localPlayer.isNull()) return;
+
+        const myTasks = localPlayer.field<Il2Cpp.Object>("myTasks").value;
+        const taskCount = myTasks.method<number>("get_Count").invoke();
+
+        for (let i = 0; i < taskCount; i++) {
+            const task = myTasks.method<Il2Cpp.Object>("get_Item").invoke(i);
+            if (task.isNull()) continue;
+
+            try {
+                const nameText = task.field<Il2Cpp.Object>("Header").value;
+                if (nameText.isNull()) continue;
+
+                nameText
+                    .method<void>("set_text")
+                    .invoke(Il2Cpp.string("[✓] " + nameText.method<Il2Cpp.String>("get_text").invoke().content));
+            } catch (e) {
+                Logger.debug(`[${this.name}::updateCompletedTasks] ${e}`);
+            }
+        }
     }
 
     /** Keeps one broken feature from breaking the whole HUD hook, and logs each distinct error once */

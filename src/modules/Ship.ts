@@ -23,6 +23,7 @@ export class ShipModule extends BaseModule {
     private VentilationSystem!: Il2Cpp.Class;
 
     private ShipStatus_FixedUpdate!: Il2Cpp.Method;
+    private PlayerControl_RpcMurderPlayer: Il2Cpp.Method<void> | null = null;
 
     public init(): void {
         this.HudManager = AssemblyHelper.AssemblyCSharp.class("HudManager");
@@ -32,6 +33,12 @@ export class ShipModule extends BaseModule {
         this.VentilationSystem = AssemblyHelper.AssemblyCSharp.class("VentilationSystem");
 
         this.ShipStatus_FixedUpdate = this.ShipStatus.method<void>("FixedUpdate");
+
+        const murderMethod = this.PlayerControl.tryMethod<void>("RpcMurderPlayer", 2);
+        this.PlayerControl_RpcMurderPlayer = murderMethod || null;
+        if (!this.PlayerControl_RpcMurderPlayer) {
+            Logger.warn(`[${this.name}::init] PlayerControl.RpcMurderPlayer not found, Kill unavailable`);
+        }
     }
 
     public override initHooks(): void {
@@ -146,6 +153,64 @@ export class ShipModule extends BaseModule {
         MapOptions.field("Mode").value = Sabotage.value;
 
         HudManagerInstance.method<void>("ToggleMapVisible", 1).invoke(MapOptions);
+    }
+
+    public killPlayer(target: Il2Cpp.Object): void {
+        const module = this;
+
+        if (!module.PlayerControl_RpcMurderPlayer) {
+            Logger.warn(`[${module.name}::killPlayer] RpcMurderPlayer not available`);
+            return;
+        }
+
+        const localPlayer = module.localPlayer;
+        if (localPlayer.isNull()) {
+            Logger.warn(`[${module.name}::killPlayer] LocalPlayer is null`);
+            return;
+        }
+
+        try {
+            const targetData = target.method<Il2Cpp.Object>("get_Data").invoke();
+            if (targetData.isNull()) {
+                Logger.warn(`[${module.name}::killPlayer] Target data is null`);
+                return;
+            }
+            localPlayer.method<void>("RpcMurderPlayer").invoke(target);
+            Logger.debug(`[${module.name}::killPlayer] Killed player`);
+        } catch (e) {
+            Logger.error(`[${module.name}::killPlayer] ${e}`);
+        }
+    }
+
+    public killAllImpostors(): void {
+        const module = this;
+
+        const localPlayer = module.localPlayer;
+        if (localPlayer.isNull()) {
+            Logger.warn(`[${module.name}::killAllImpostors] LocalPlayer is null`);
+            return;
+        }
+
+        const players = this.PlayerControl.field<Il2Cpp.Object>("AllPlayerControls").value;
+        const count = players.method<number>("get_Count").invoke();
+
+        for (let i = 0; i < count; i++) {
+            const player = players.method<Il2Cpp.Object>("get_Item").invoke(i);
+            if (player.isNull()) continue;
+
+            const data = player.method<Il2Cpp.Object>("get_Data").invoke();
+            if (data.isNull()) continue;
+
+            const role = data.field<Il2Cpp.Object>("Role").value;
+            if (role.isNull()) continue;
+
+            const isImpostor = role.method<boolean>("get_IsImpostor").invoke();
+            if (isImpostor && !player.equals(localPlayer)) {
+                module.killPlayer(player);
+            }
+        }
+
+        Logger.debug(`[${module.name}::killAllImpostors] Killed all impostors`);
     }
 
     /**

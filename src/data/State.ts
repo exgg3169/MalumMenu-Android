@@ -25,5 +25,9 @@ export const State = {
     unkickable: false,
     captureHost: false,
     fakeImpostor: false,
-    unlimitedVoting: false
+    unlimitedVoting: false,
+
+    canKill: false,
+    killAllImpostors: false,
+    showCompletedTasks: false
 };

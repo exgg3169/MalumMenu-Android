@@ -39,7 +39,9 @@
             "system": "System",
             "game": "Game",
             "game_speed": "Game Speed",
-            "lobby": "Lobby"
+            "lobby": "Lobby",
+            "killing": "Killing",
+            "tasks": "Tasks"
         },
         "functions": {
             "go_to_main_menu": "Go to Main Menu",
@@ -78,7 +80,10 @@
             "unkickable": "Cannot Be Kicked",
             "capture_host": "Capture Host",
             "fake_impostor": "Fake Impostor",
-            "unlimited_voting": "Unlimited Voting"
+            "unlimited_voting": "Unlimited Voting",
+            "can_kill": "Can Kill",
+            "kill_all_impostors": "Kill All Impostors",
+            "show_completed_tasks": "Show Completed Tasks"
         },
         "other": {
             "language": "Select Language",

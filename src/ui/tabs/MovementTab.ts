@@ -85,5 +85,33 @@ export class MovementTab {
             ),
             page
         );
+
+        add(Widgets.header(I18n.t("menu.sections.killing")), page);
+        add(
+            Widgets.card(
+                layout.toggle(I18n.t("menu.functions.can_kill"), (state: boolean) => {
+                    State.canKill = state;
+                })
+            ),
+            page
+        );
+        add(
+            Widgets.card(
+                layout.toggle(I18n.t("menu.functions.kill_all_impostors"), (state: boolean) => {
+                    State.killAllImpostors = state;
+                })
+            ),
+            page
+        );
+
+        add(Widgets.header(I18n.t("menu.sections.tasks")), page);
+        add(
+            Widgets.card(
+                layout.toggle(I18n.t("menu.functions.show_completed_tasks"), (state: boolean) => {
+                    State.showCompletedTasks = state;
+                })
+            ),
+            page
+        );
     }
 }
