@@ -4,14 +4,14 @@ import { I18n } from "../../i18n/I18n";
 import { State } from "../../data/State";
 import { Theme } from "../../data/LayoutConfig";
 import { ModuleManager } from "../../core/ModuleManager";
-import { UnityUtils } from "../../utils/UnityUtils";
 import { ShipModule } from "../../modules/Ship";
 import { Widgets } from "../Widgets";
 
 export class ShipTab {
     static draw(layout: ObsidianLayout, page: Layout) {
         const ship = () => ModuleManager.get(ShipModule);
-        const button = (key: string, action: () => void) => add(Widgets.card(layout.button(I18n.t(key), UnityUtils.run(action)), Theme.cardPressed), page);
+        const button = (key: string, action: () => void) =>
+            add(Widgets.card(layout.button(I18n.t(key), Widgets.action(I18n.t(key), action)), Theme.cardPressed), page);
         const toggle = (key: string, onChange: (state: boolean) => void) => add(Widgets.card(layout.toggle(I18n.t(key), onChange)), page);
 
         add(Widgets.header(I18n.t("menu.sections.meetings")), page);

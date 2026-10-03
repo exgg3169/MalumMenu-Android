@@ -7,6 +7,7 @@ import { Theme } from "../../data/LayoutConfig";
 import { JavaUtils } from "../../utils/JavaUtils";
 import { UnityUtils } from "../../utils/UnityUtils";
 import { Widgets } from "../Widgets";
+import { Logger } from "../../logger/Logger";
 
 export class DebugTab {
     static draw(layout: ObsidianLayout, page: Layout) {
@@ -29,6 +30,18 @@ export class DebugTab {
                 layout.button(I18n.t("menu.other.copy_debug_info"), () => {
                     JavaUtils.copyToClipboard(info.map(([label, value]) => `${label}: ${value}`).join("\n"));
                     toast(I18n.t("menu.toasts.copied"), 0);
+                }),
+                Theme.cardPressed
+            ),
+            page
+        );
+
+        add(
+            Widgets.card(
+                layout.button(I18n.t("menu.other.copy_error_log"), () => {
+                    const errors = Logger.recentErrors();
+                    JavaUtils.copyToClipboard(errors.length ? errors.join("\n") : "No errors");
+                    toast(I18n.t("menu.toasts.copied_errors", errors.length), 0);
                 }),
                 Theme.cardPressed
             ),

@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/2.0.0/),
 
 ## [Unreleased]
 
+### Added
+
+- See Roles (shows every player's role above their name)
+- Speed Up Game (adjustable game speed)
+- Copy Error Log button in the Debug tab
+- Button actions now show a toast when they fail instead of failing silently
+
+### Fixed
+
+- Always Show Chat now also restores the chat button during rounds
+
 ## [2.1.5] - 2026-10-03
 
 The released APK comes with game version `19.0.0` (`2026.9.29`).

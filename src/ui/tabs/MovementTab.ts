@@ -33,5 +33,23 @@ export class MovementTab {
             ),
             page
         );
+
+        add(Widgets.header(I18n.t("menu.sections.game_speed")), page);
+        const gameSpeedLabel = I18n.t("menu.functions.game_speed_val");
+        State.gameSpeed = Widgets.savedInt(gameSpeedLabel, State.gameSpeed);
+        add(
+            Widgets.seekbar(layout, gameSpeedLabel, 5, 1, (value: number) => {
+                State.gameSpeed = value;
+            }),
+            page
+        );
+        add(
+            Widgets.card(
+                layout.toggle(I18n.t("menu.functions.game_speed"), (state: boolean) => {
+                    State.gameSpeedEnabled = state;
+                })
+            ),
+            page
+        );
     }
 }

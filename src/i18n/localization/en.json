@@ -37,7 +37,8 @@
             "links": "Links",
             "settings": "Settings",
             "system": "System",
-            "game": "Game"
+            "game": "Game",
+            "game_speed": "Game Speed"
         },
         "functions": {
             "go_to_main_menu": "Go to Main Menu",
@@ -68,7 +69,11 @@
             "repair_sabotages": "Repair Sabotages",
             "fps_unlock": "Custom FPS Limit",
             "fps_val": "FPS Limit: {0}",
-            "exit_game": "Exit Game"
+            "exit_game": "Exit Game",
+            "see_roles": "See Roles",
+            "game_speed": "Speed Up Game",
+            "game_speed_val": "Game Speed: {0}x",
+            "always_show_chat_note": "Only changes something during a round – in the lobby and in meetings the chat is always visible."
         },
         "other": {
             "language": "Select Language",
@@ -77,7 +82,8 @@
             "malummenu_url": "Check Out MalumMenu for PC!",
             "changelog": "Open Changelog",
             "reset_settings": "Reset All Settings",
-            "copy_debug_info": "Copy Debug Info"
+            "copy_debug_info": "Copy Debug Info",
+            "copy_error_log": "Copy Error Log"
         },
         "toasts": {
             "no_overlay_permission": "Overlay permission is needed to show the menu",
@@ -89,7 +95,8 @@
             "on_locale_changed": "Changed mod menu language to {0}, restart game to apply",
             "long_press_to_confirm": "Long press to confirm",
             "settings_reset": "Settings reset, restart game to apply",
-            "copied": "Copied to clipboard"
+            "copied": "Copied to clipboard",
+            "copied_errors": "Copied {0} errors to clipboard"
         }
     }
 }

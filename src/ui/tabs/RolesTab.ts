@@ -2,7 +2,6 @@ import { add, Layout, ObsidianLayout } from "frida-java-menu";
 
 import { I18n } from "../../i18n/I18n";
 import { Theme } from "../../data/LayoutConfig";
-import { UnityUtils } from "../../utils/UnityUtils";
 import { ModuleManager } from "../../core/ModuleManager";
 import { PlayerModule } from "../../modules/Player";
 import { Widgets } from "../Widgets";
@@ -14,7 +13,7 @@ export class RolesTab {
             Widgets.card(
                 layout.button(
                     I18n.t("menu.functions.complete_my_tasks"),
-                    UnityUtils.run(() => ModuleManager.get(PlayerModule)?.completeMyTasks())
+                    Widgets.action(I18n.t("menu.functions.complete_my_tasks"), () => ModuleManager.get(PlayerModule)?.completeMyTasks())
                 ),
                 Theme.cardPressed
             ),

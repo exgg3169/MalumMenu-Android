@@ -37,7 +37,8 @@
             "links": "Bağlantılar",
             "settings": "Ayarlar",
             "system": "Sistem",
-            "game": "Oyun"
+            "game": "Oyun",
+            "game_speed": "Oyun Hızı"
         },
         "functions": {
             "go_to_main_menu": "Ana Menüye Dön",
@@ -68,7 +69,11 @@
             "uwuify": "UwU?",
             "keyboard_mode": "Klavye Modu",
             "keyboard_mode_note": "Fiziksel klavye gerektirir. Dokunmatik kontroller çalışmayabilir.",
-            "exit_game": "Oyundan Çık"
+            "exit_game": "Oyundan Çık",
+            "see_roles": "Rolleri Göster",
+            "game_speed": "Oyunu Hızlandır",
+            "game_speed_val": "Oyun Hızı: {0}x",
+            "always_show_chat_note": "Sadece tur sırasında fark yaratır – lobide ve toplantılarda sohbet zaten her zaman görünür."
         },
         "other": {
             "language": "Dil Seç",
@@ -77,7 +82,8 @@
             "malummenu_url": "PC için MalumMenu'ya göz at!",
             "changelog": "Değişiklik Günlüğünü Aç",
             "reset_settings": "Tüm Ayarları Sıfırla",
-            "copy_debug_info": "Hata Ayıklama Bilgisini Kopyala"
+            "copy_debug_info": "Hata Ayıklama Bilgisini Kopyala",
+            "copy_error_log": "Hata Kaydını Kopyala"
         },
         "toasts": {
             "no_overlay_permission": "Menüyü göstermek için üstte gösterme izni gerekli",
@@ -89,7 +95,8 @@
             "on_locale_changed": "Mod menü dili {0} olarak değiştirildi, uygulamak için oyunu yeniden başlat",
             "long_press_to_confirm": "Onaylamak için uzun bas",
             "settings_reset": "Ayarlar sıfırlandı, uygulamak için oyunu yeniden başlat",
-            "copied": "Panoya kopyalandı"
+            "copied": "Panoya kopyalandı",
+            "copied_errors": "{0} hata panoya kopyalandı"
         }
     }
 }

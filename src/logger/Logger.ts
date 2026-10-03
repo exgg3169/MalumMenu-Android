@@ -11,6 +11,14 @@ export class Logger {
         RED: "\x1b[31m"
     } as const;
 
+    private static readonly MAX_RECENT_ERRORS = 30;
+    private static readonly recent: string[] = [];
+
+    /** Last errors without color codes, so users can paste them from the menu */
+    static recentErrors(): string[] {
+        return [...this.recent];
+    }
+
     private static getTime(): string {
         const date = new Date();
         const hh = date.getHours().toString().padStart(2, "0");
@@ -37,6 +45,12 @@ export class Logger {
     }
 
     static error(...messages: any[]) {
+        const line = messages
+            .map(String)
+            .join(" ")
+            .replace(new RegExp(`${String.fromCharCode(27)}\\[\\d+m`, "g"), "");
+        this.recent.push(`[${new Date().toTimeString().slice(0, 8)}] ${line}`);
+        if (this.recent.length > this.MAX_RECENT_ERRORS) this.recent.shift();
         console.error(`${this.getTime()} ${this.Colors.RED}[ERROR]${this.Colors.RESET}`, ...messages);
     }
 

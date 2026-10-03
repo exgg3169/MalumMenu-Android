@@ -10,6 +10,7 @@ export const State = {
     zoomOut: false,
     zoom: 2,
     revealImpostors: false,
+    seeRoles: false,
     alwaysShowChat: false,
 
     unlockCosmetics: false,
@@ -17,5 +18,7 @@ export const State = {
     uwuifyMode: false,
     keyboardMode: false,
     fpsUnlock: false,
-    fps: 60
+    fps: 60,
+    gameSpeedEnabled: false,
+    gameSpeed: 2
 };

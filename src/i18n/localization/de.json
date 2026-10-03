@@ -37,7 +37,8 @@
             "links": "Links",
             "settings": "Einstellungen",
             "system": "System",
-            "game": "Spiel"
+            "game": "Spiel",
+            "game_speed": "Spielgeschwindigkeit"
         },
         "functions": {
             "go_to_main_menu": "Gehe zum Hauptmenü",
@@ -68,7 +69,11 @@
             "repair_sabotages": "Sabotagen reparieren",
             "fps_unlock": "Eigenes FPS-Limit",
             "fps_val": "FPS-Limit: {0}",
-            "exit_game": "Spiel beenden"
+            "exit_game": "Spiel beenden",
+            "see_roles": "Rollen anzeigen",
+            "game_speed": "Spiel beschleunigen",
+            "game_speed_val": "Spielgeschwindigkeit: {0}x",
+            "always_show_chat_note": "Wirkt nur während einer Runde – in der Lobby und in Meetings ist der Chat immer sichtbar."
         },
         "other": {
             "language": "Select Language",
@@ -77,7 +82,8 @@
             "malummenu_url": "Check Out MalumMenu for PC!",
             "changelog": "Öffne Changelog",
             "reset_settings": "Alle Einstellungen zurücksetzen",
-            "copy_debug_info": "Debug-Infos kopieren"
+            "copy_debug_info": "Debug-Infos kopieren",
+            "copy_error_log": "Fehlerprotokoll kopieren"
         },
         "toasts": {
             "no_overlay_permission": "Overlay permission is needed to show the menu",
@@ -89,7 +95,8 @@
             "on_locale_changed": "Mod Menü Sprache geändert zu {0}, Spiel neu starten um anzuwenden",
             "long_press_to_confirm": "Zum Bestätigen lange drücken",
             "settings_reset": "Einstellungen zurückgesetzt, Spiel neu starten um anzuwenden",
-            "copied": "In die Zwischenablage kopiert"
+            "copied": "In die Zwischenablage kopiert",
+            "copied_errors": "{0} Fehler in die Zwischenablage kopiert"
         }
     }
 }

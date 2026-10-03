@@ -20,6 +20,8 @@ import {
 } from "frida-java-menu";
 
 import { Theme } from "../data/LayoutConfig";
+import { Logger } from "../logger/Logger";
+import { UnityUtils } from "../utils/UnityUtils";
 
 export class Widgets {
     static dp(value: number): number {
@@ -127,6 +129,17 @@ export class Widgets {
         };
 
         return { root: scroll, select };
+    }
+
+    /** Runs a button action on the Unity thread and shows a toast if it fails instead of failing silently */
+    static action(name: string, fn: () => void): () => void {
+        return UnityUtils.run(() => {
+            try {
+                fn();
+            } catch (error: any) {
+                Logger.errorToast(error, `${name}:`);
+            }
+        });
     }
 
     static show(view: View, visible: boolean): void {

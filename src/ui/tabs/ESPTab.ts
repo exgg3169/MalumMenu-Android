@@ -24,6 +24,15 @@ export class ESPTab {
             page
         );
 
+        add(
+            Widgets.card(
+                layout.toggle(I18n.t("menu.functions.see_roles"), (state: boolean) => {
+                    State.seeRoles = state;
+                })
+            ),
+            page
+        );
+
         add(Widgets.header(I18n.t("menu.sections.camera")), page);
         const zoomLabel = I18n.t("menu.functions.zoom_val");
         State.zoom = Widgets.savedInt(zoomLabel, State.zoom);
@@ -51,5 +60,6 @@ export class ESPTab {
             ),
             page
         );
+        add(Widgets.note(I18n.t("menu.functions.always_show_chat_note")), page);
     }
 }
