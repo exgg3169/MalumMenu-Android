@@ -20,10 +20,5 @@ export const State = {
     fpsUnlock: false,
     fps: 60,
     gameSpeedEnabled: false,
-    gameSpeed: 2,
-
-    unkickable: false,
-    captureHost: false,
-    fakeImpostor: false,
-    unlimitedVoting: false
+    gameSpeed: 2
 };

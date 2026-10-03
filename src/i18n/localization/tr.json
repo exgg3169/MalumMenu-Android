@@ -38,8 +38,7 @@
             "settings": "Ayarlar",
             "system": "Sistem",
             "game": "Oyun",
-            "game_speed": "Oyun Hızı",
-            "lobby": "Lobi"
+            "game_speed": "Oyun Hızı"
         },
         "functions": {
             "go_to_main_menu": "Ana Menüye Dön",
@@ -74,11 +73,7 @@
             "see_roles": "Rolleri Göster",
             "game_speed": "Oyunu Hızlandır",
             "game_speed_val": "Oyun Hızı: {0}x",
-            "always_show_chat_note": "Sadece tur sırasında fark yaratır – lobide ve toplantılarda sohbet zaten her zaman görünür.",
-            "unkickable": "Atılamaz",
-            "capture_host": "Sahibliği Ele Geç",
-            "fake_impostor": "Sahte Sahtekar",
-            "unlimited_voting": "Sınırsız Oylama"
+            "always_show_chat_note": "Sadece tur sırasında fark yaratır – lobide ve toplantılarda sohbet zaten her zaman görünür."
         },
         "other": {
             "language": "Dil Seç",

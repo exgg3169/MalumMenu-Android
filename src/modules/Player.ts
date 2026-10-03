@@ -20,7 +20,6 @@ export class PlayerModule extends BaseModule {
     private PlayerPurchasesData!: Il2Cpp.Class;
     private HudManager!: Il2Cpp.Class;
     private Vent!: Il2Cpp.Class;
-    private GameManager!: Il2Cpp.Class;
 
     private Vector2_Distance!: Il2Cpp.Method;
 
@@ -29,8 +28,6 @@ export class PlayerModule extends BaseModule {
     private PlayerPurchasesData_GetPurchase!: Il2Cpp.Method;
     private HudManager_Update!: Il2Cpp.Method;
     private Vent_CanUse!: Il2Cpp.Method;
-    private PlayerControl_RpcRemovePlayer!: Il2Cpp.Method;
-    private GameManager_RpcSetHost!: Il2Cpp.Method;
 
     public init(): void {
         this.Vector2 = AssemblyHelper.CoreModule.class("UnityEngine.Vector2");
@@ -44,7 +41,6 @@ export class PlayerModule extends BaseModule {
         this.PlayerPurchasesData = AssemblyHelper.AssemblyCSharp.class("PlayerPurchasesData");
         this.HudManager = AssemblyHelper.AssemblyCSharp.class("HudManager");
         this.Vent = AssemblyHelper.AssemblyCSharp.class("Vent");
-        this.GameManager = AssemblyHelper.AssemblyCSharp.class("GameManager");
 
         this.Vector2_Distance = this.Vector2.method<number>("Distance", 2);
 
@@ -53,12 +49,6 @@ export class PlayerModule extends BaseModule {
         this.PlayerPurchasesData_GetPurchase = this.PlayerPurchasesData.method<boolean>("GetPurchase");
         this.HudManager_Update = this.HudManager.method<void>("Update");
         this.Vent_CanUse = this.Vent.method<boolean>("CanUse", 3);
-
-        const rpcRemovePlayer = this.PlayerControl.tryMethod("RpcRemovePlayer");
-        this.PlayerControl_RpcRemovePlayer = rpcRemovePlayer || this.PlayerControl.method<void>("RpcRemovePlayer", 1);
-
-        const rpcSetHost = this.GameManager.tryMethod("RpcSetHost");
-        this.GameManager_RpcSetHost = rpcSetHost || this.GameManager.method<void>("RpcSetHost", 1);
     }
 
     public override initHooks(): void {
@@ -167,28 +157,6 @@ export class PlayerModule extends BaseModule {
                 num <= usableDistance && !module.PhysicsHelpers_AnythingBetween.invoke(collider, centerVector2, positionVector2, shipOnlyMask, false);
             couldUse.value = true;
             return num;
-        };
-
-        // @ts-ignore
-        this.PlayerControl_RpcRemovePlayer.implementation = function (playerId: number): void {
-            if (State.unkickable && playerId === module.localPlayer.field<number>("PlayerId").value) {
-                Logger.debug(`[${module.name}] Blocked removal of self (unkickable enabled)`);
-                return;
-            }
-            return this.method<void>("RpcRemovePlayer", 1).invoke(playerId);
-        };
-
-        // @ts-ignore
-        this.GameManager_RpcSetHost.implementation = function (clientId: number): void {
-            if (State.captureHost) {
-                const localPlayer = module.localPlayer;
-                if (!localPlayer.isNull()) {
-                    const myClientId = module.AmongUsClient.method<number>("get_ClientId").invoke();
-                    Logger.debug(`[${module.name}] Capturing host (my client: ${myClientId}, requested: ${clientId})`);
-                    return this.method<void>("RpcSetHost", 1).invoke(myClientId);
-                }
-            }
-            return this.method<void>("RpcSetHost", 1).invoke(clientId);
         };
     }
 

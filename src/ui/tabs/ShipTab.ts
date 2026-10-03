@@ -25,9 +25,6 @@ export class ShipTab {
         button("menu.functions.sabotage_lights", () => ship()?.sabotageLights());
         button("menu.functions.repair_sabotages", () => ship()?.repairSabotages());
 
-        add(Widgets.header(I18n.t("menu.sections.voting")), page);
-        toggle("menu.functions.unlimited_voting", state => (State.unlimitedVoting = state));
-
         add(Widgets.header(I18n.t("menu.sections.vents")), page);
         toggle("menu.functions.unlock_vents", state => (State.unlockVents = state));
         toggle("menu.functions.walk_in_vents", state => (State.walkInVents = state));
