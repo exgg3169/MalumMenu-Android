@@ -5,7 +5,6 @@ import { UnityUtils } from "../utils/UnityUtils";
 import { Logger } from "../logger/Logger";
 import { ModuleManager } from "../core/ModuleManager";
 import { VisualModule } from "./Visual";
-import { ShipModule } from "./Ship";
 
 export class PlayerModule extends BaseModule {
     public readonly name = "Player";
@@ -30,8 +29,10 @@ export class PlayerModule extends BaseModule {
     private HudManager_Update!: Il2Cpp.Method;
     private Vent_CanUse!: Il2Cpp.Method;
 
-    private PlayerControl_RpcRemovePlayer: Il2Cpp.Method<void> | null = null;
-    private GameManager_RpcSetHost: Il2Cpp.Method<void> | null = null;
+    private ImpostorRole_FindClosestTarget: Il2Cpp.Method | null = null;
+    private ImpostorRole_IsValidTarget: Il2Cpp.Method | null = null;
+    private PlayerControl_SetKillTimer: Il2Cpp.Method | null = null;
+    private PlayerControl_CmdCheckMurder: Il2Cpp.Method | null = null;
 
     public init(): void {
         this.Vector2 = AssemblyHelper.CoreModule.class("UnityEngine.Vector2");
@@ -54,55 +55,42 @@ export class PlayerModule extends BaseModule {
         this.HudManager_Update = this.HudManager.method<void>("Update");
         this.Vent_CanUse = this.Vent.method<boolean>("CanUse", 3);
 
-        const removePlayerMethod = this.PlayerControl.tryMethod<void>("RpcRemovePlayer", 1);
-        this.PlayerControl_RpcRemovePlayer = removePlayerMethod || null;
-        if (!this.PlayerControl_RpcRemovePlayer) {
-            Logger.warn(`[${this.name}::init] PlayerControl.RpcRemovePlayer not found, Unkickable unavailable`);
-        }
+        // Impostor kill cheats patch the game's own kill logic, the same way MalumMenu for PC does
+        const impostorRole = AssemblyHelper.AssemblyCSharp.tryClass("ImpostorRole");
+        this.ImpostorRole_FindClosestTarget = impostorRole?.tryMethod("FindClosestTarget", 0) ?? null;
+        this.ImpostorRole_IsValidTarget = impostorRole?.tryMethod("IsValidTarget", 1) ?? null;
+        this.PlayerControl_SetKillTimer = this.PlayerControl.tryMethod("SetKillTimer", 1) ?? null;
+        this.PlayerControl_CmdCheckMurder = this.PlayerControl.tryMethod("CmdCheckMurder", 1) ?? null;
 
-        const GameManager = AssemblyHelper.AssemblyCSharp.tryClass("GameManager");
-        if (GameManager) {
-            const hostMethod = GameManager.tryMethod<void>("RpcSetHost", 1);
-            this.GameManager_RpcSetHost = hostMethod || null;
-            if (!this.GameManager_RpcSetHost) {
-                Logger.warn(`[${this.name}::init] GameManager.RpcSetHost not found, Capture Host unavailable`);
-            }
-        } else {
-            Logger.warn(`[${this.name}::init] GameManager class not found`);
-        }
+        if (!this.ImpostorRole_FindClosestTarget) Logger.warn(`[${this.name}::init] ImpostorRole.FindClosestTarget not found, Kill Reach unavailable`);
+        if (!this.ImpostorRole_IsValidTarget) Logger.warn(`[${this.name}::init] ImpostorRole.IsValidTarget not found, Kill Anyone unavailable`);
+        if (!this.PlayerControl_SetKillTimer) Logger.warn(`[${this.name}::init] PlayerControl.SetKillTimer not found, No Kill Cooldown unavailable`);
+        if (!this.PlayerControl_CmdCheckMurder) Logger.warn(`[${this.name}::init] PlayerControl.CmdCheckMurder not found, Kill Everyone unavailable`);
     }
 
     public override initHooks(): void {
         const module = this;
 
-        if (module.PlayerControl_RpcRemovePlayer) {
-            // @ts-ignore - implementation signature mismatch
-            module.PlayerControl_RpcRemovePlayer.implementation = function (playerId: number): void {
-                const localPlayer = module.localPlayer;
-                const data = localPlayer.method<Il2Cpp.Object>("get_Data").invoke();
-                const currentPlayerId = data.field<number>("PlayerId").value;
-
-                if (State.unkickable && playerId === currentPlayerId) {
-                    Logger.debug(`[${module.name}::RpcRemovePlayer] Blocked removal of local player (unkickable)`);
-                    return;
+        if (this.ImpostorRole_FindClosestTarget) {
+            // @ts-ignore
+            this.ImpostorRole_FindClosestTarget.implementation = function (): Il2Cpp.Object {
+                if (State.killReach) {
+                    const target = module.nearestKillTarget(this as Il2Cpp.Object);
+                    if (target) return target;
                 }
-
-                return this.method<void>("RpcRemovePlayer", 1).invoke(playerId);
+                return this.method<Il2Cpp.Object>("FindClosestTarget").invoke();
             };
         }
 
-        if (module.GameManager_RpcSetHost) {
-            // @ts-ignore - implementation signature mismatch
-            module.GameManager_RpcSetHost.implementation = function (newHostId: number): void {
-                if (State.captureHost) {
-                    const localPlayer = module.localPlayer;
-                    const data = localPlayer.method<Il2Cpp.Object>("get_Data").invoke();
-                    const myId = data.field<number>("PlayerId").value;
-                    Logger.debug(`[${module.name}::RpcSetHost] Capture Host active, setting host to local player ${myId}`);
-                    return this.method<void>("RpcSetHost", 1).invoke(myId);
-                }
+        if (this.ImpostorRole_IsValidTarget) {
+            // @ts-ignore
+            this.ImpostorRole_IsValidTarget.implementation = function (target: Il2Cpp.Object): boolean {
+                const valid = this.method<boolean>("IsValidTarget", 1).invoke(target);
+                if (valid || !State.killAnyone || target.isNull()) return valid;
 
-                return this.method<void>("RpcSetHost", 1).invoke(newHostId);
+                // Kill Anyone: also allow ghosts, impostors and players in vents, just not yourself
+                const localData = module.localPlayer.method<Il2Cpp.Object>("get_Data").invoke();
+                return !target.field<boolean>("Disconnected").value && target.field<number>("PlayerId").value !== localData.field<number>("PlayerId").value;
             };
         }
 
@@ -159,10 +147,7 @@ export class PlayerModule extends BaseModule {
             module.applyHudTweaks();
             this.method<void>("Update").invoke();
             ModuleManager.get(VisualModule)?.onHudUpdate(this as Il2Cpp.Object);
-
-            if (State.canKill) {
-                module.tryKillNearest();
-            }
+            module.applyNoKillCooldown();
         };
 
         //@ts-ignore
@@ -254,6 +239,78 @@ export class PlayerModule extends BaseModule {
         }
     }
 
+    private localRole(): Il2Cpp.Object | undefined {
+        const localPlayer = this.localPlayer;
+        if (localPlayer.isNull()) return undefined;
+
+        const data = localPlayer.method<Il2Cpp.Object>("get_Data").invoke();
+        if (data.isNull()) return undefined;
+
+        const role = data.field<Il2Cpp.Object>("Role").value;
+        return role.isNull() ? undefined : role;
+    }
+
+    private applyNoKillCooldown(): void {
+        if (!State.noKillCd || !this.PlayerControl_SetKillTimer) return;
+
+        try {
+            const role = this.localRole();
+            if (role && role.method<boolean>("get_IsImpostor").invoke()) {
+                this.localPlayer.method<void>("SetKillTimer", 1).invoke(0);
+            }
+        } catch (e) {
+            Logger.debug(`[${this.name}::applyNoKillCooldown] ${e}`);
+        }
+    }
+
+    /** Valid kill targets for the given impostor role, closest first, at any distance */
+    private killTargets(role: Il2Cpp.Object): Il2Cpp.Object[] {
+        const localPlayer = this.localPlayer;
+        const localPos = localPlayer.method<Il2Cpp.Object>("get_transform").invoke().method<Il2Cpp.Object>("get_position").invoke();
+        const localX = localPos.field<number>("x").value;
+        const localY = localPos.field<number>("y").value;
+
+        const players = this.PlayerControl.field<Il2Cpp.Object>("AllPlayerControls").value;
+        const count = players.method<number>("get_Count").invoke();
+        const found: { player: Il2Cpp.Object; distance: number }[] = [];
+
+        for (let i = 0; i < count; i++) {
+            const player = players.method<Il2Cpp.Object>("get_Item").invoke(i);
+            if (player.isNull() || player.equals(localPlayer)) continue;
+
+            const data = player.method<Il2Cpp.Object>("get_Data").invoke();
+            if (data.isNull() || !role.method<boolean>("IsValidTarget", 1).invoke(data)) continue;
+
+            const pos = player.method<Il2Cpp.Object>("get_transform").invoke().method<Il2Cpp.Object>("get_position").invoke();
+            const dx = pos.field<number>("x").value - localX;
+            const dy = pos.field<number>("y").value - localY;
+            found.push({ player, distance: dx * dx + dy * dy });
+        }
+
+        return found.sort((a, b) => a.distance - b.distance).map(entry => entry.player);
+    }
+
+    private nearestKillTarget(role: Il2Cpp.Object): Il2Cpp.Object | undefined {
+        return this.killTargets(role)[0];
+    }
+
+    /** Sends the normal kill request for every valid target, so it only works while you are the impostor */
+    public killEveryoneAsImpostor(): void {
+        const role = this.localRole();
+        if (!role || !role.method<boolean>("get_IsImpostor").invoke()) {
+            throw new Error("You are not the impostor");
+        }
+        if (!this.PlayerControl_CmdCheckMurder) {
+            throw new Error("PlayerControl.CmdCheckMurder not found");
+        }
+
+        const targets = this.killTargets(role);
+        Logger.debug(`[${this.name}::killEveryoneAsImpostor] Requesting ${targets.length} kills`);
+        for (const target of targets) {
+            this.localPlayer.method<void>("CmdCheckMurder", 1).invoke(target);
+        }
+    }
+
     public completeTask(task: Il2Cpp.Object): void {
         const module = this;
         const localPlayer = module.localPlayer;
@@ -281,48 +338,6 @@ export class PlayerModule extends BaseModule {
         for (let i = 0; i < taskCount; i++) {
             const task = myTasks.method<Il2Cpp.Object>("get_Item").invoke(i);
             module.completeTask(task);
-        }
-    }
-
-    private tryKillNearest(): void {
-        const module = this;
-        const ship = ModuleManager.get(ShipModule);
-        if (!ship) return;
-
-        const localPlayer = module.localPlayer;
-        if (localPlayer.isNull()) return;
-
-        const localPos = localPlayer.field<Il2Cpp.Object>("transform").value.method<Il2Cpp.Object>("get_position").invoke();
-        const localX = localPos.field<number>("x").value;
-        const localY = localPos.field<number>("y").value;
-
-        const players = this.PlayerControl.field<Il2Cpp.Object>("AllPlayerControls").value;
-        const count = players.method<number>("get_Count").invoke();
-
-        let nearest: Il2Cpp.Object | null = null;
-        let minDistance = Number.MAX_VALUE;
-
-        for (let i = 0; i < count; i++) {
-            const player = players.method<Il2Cpp.Object>("get_Item").invoke(i);
-            if (player.isNull() || player.equals(localPlayer)) continue;
-
-            try {
-                const pos = player.field<Il2Cpp.Object>("transform").value.method<Il2Cpp.Object>("get_position").invoke();
-                const x = pos.field<number>("x").value;
-                const y = pos.field<number>("y").value;
-
-                const distance = Math.sqrt((x - localX) * (x - localX) + (y - localY) * (y - localY));
-                if (distance < minDistance && distance < 2.5) {
-                    minDistance = distance;
-                    nearest = player;
-                }
-            } catch (e) {
-                Logger.debug(`[${this.name}::tryKillNearest] ${e}`);
-            }
-        }
-
-        if (nearest) {
-            ship.killPlayer(nearest);
         }
     }
 

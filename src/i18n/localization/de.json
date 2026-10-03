@@ -38,7 +38,8 @@
             "settings": "Einstellungen",
             "system": "System",
             "game": "Spiel",
-            "game_speed": "Spielgeschwindigkeit"
+            "game_speed": "Spielgeschwindigkeit",
+            "impostor": "Impostor"
         },
         "functions": {
             "go_to_main_menu": "Gehe zum Hauptmenü",
@@ -73,7 +74,12 @@
             "see_roles": "Rollen anzeigen",
             "game_speed": "Spiel beschleunigen",
             "game_speed_val": "Spielgeschwindigkeit: {0}x",
-            "always_show_chat_note": "Wirkt nur während einer Runde – in der Lobby und in Meetings ist der Chat immer sichtbar."
+            "always_show_chat_note": "Wirkt nur während einer Runde – in der Lobby und in Meetings ist der Chat immer sichtbar.",
+            "kill_reach": "Kill-Reichweite",
+            "kill_anyone": "Jeden töten",
+            "no_kill_cd": "Kein Kill-Cooldown",
+            "kill_everyone": "Alle töten (als Impostor)",
+            "impostor_note": "Funktioniert nur, wenn du wirklich Impostor bist. Alle töten sendet die normale Kill-Anfrage für jedes Ziel, der Host muss sie annehmen."
         },
         "other": {
             "language": "Select Language",

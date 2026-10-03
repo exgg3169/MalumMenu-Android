@@ -39,9 +39,7 @@
             "system": "Sistem",
             "game": "Oyun",
             "game_speed": "Oyun Hızı",
-            "lobby": "Lobi",
-            "killing": "Öldürme",
-            "tasks": "Görevler"
+            "impostor": "Sahtekar"
         },
         "functions": {
             "go_to_main_menu": "Ana Menüye Dön",
@@ -77,13 +75,11 @@
             "game_speed": "Oyunu Hızlandır",
             "game_speed_val": "Oyun Hızı: {0}x",
             "always_show_chat_note": "Sadece tur sırasında fark yaratır – lobide ve toplantılarda sohbet zaten her zaman görünür.",
-            "unkickable": "Atılamaz Olma",
-            "capture_host": "Lobi Sahipliğini Ele Geçir",
-            "fake_impostor": "Sahtekar Yap",
-            "unlimited_voting": "Sınırsız Oy",
-            "can_kill": "Öldürebilir",
-            "kill_all_impostors": "Tüm Sahtekarları Öldür",
-            "show_completed_tasks": "Tamamlanmış Görevleri Göster"
+            "kill_reach": "Sınırsız Öldürme Menzili",
+            "kill_anyone": "Herkesi Öldürebil",
+            "no_kill_cd": "Öldürme Bekleme Süresi Yok",
+            "kill_everyone": "Herkesi Öldür (Sahtekarken)",
+            "impostor_note": "Sadece gerçekten sahtekarsan çalışır. Herkesi Öldür her hedef için normal öldürme isteği gönderir, kabul etmesi hosta kalmıştır."
         },
         "other": {
             "language": "Dil Seç",

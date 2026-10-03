@@ -39,9 +39,7 @@
             "system": "System",
             "game": "Game",
             "game_speed": "Game Speed",
-            "lobby": "Lobby",
-            "killing": "Killing",
-            "tasks": "Tasks"
+            "impostor": "Impostor"
         },
         "functions": {
             "go_to_main_menu": "Go to Main Menu",
@@ -77,13 +75,11 @@
             "game_speed": "Speed Up Game",
             "game_speed_val": "Game Speed: {0}x",
             "always_show_chat_note": "Only changes something during a round – in the lobby and in meetings the chat is always visible.",
-            "unkickable": "Cannot Be Kicked",
-            "capture_host": "Capture Host",
-            "fake_impostor": "Fake Impostor",
-            "unlimited_voting": "Unlimited Voting",
-            "can_kill": "Can Kill",
-            "kill_all_impostors": "Kill All Impostors",
-            "show_completed_tasks": "Show Completed Tasks"
+            "kill_reach": "Kill Reach",
+            "kill_anyone": "Kill Anyone",
+            "no_kill_cd": "No Kill Cooldown",
+            "kill_everyone": "Kill Everyone (as Impostor)",
+            "impostor_note": "Only works while you really are the impostor. Kill Everyone sends the normal kill request for every target, the host still has to accept it."
         },
         "other": {
             "language": "Select Language",

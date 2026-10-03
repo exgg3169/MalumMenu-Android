@@ -22,12 +22,7 @@ export const State = {
     gameSpeedEnabled: false,
     gameSpeed: 2,
 
-    unkickable: false,
-    captureHost: false,
-    fakeImpostor: false,
-    unlimitedVoting: false,
-
-    canKill: false,
-    killAllImpostors: false,
-    showCompletedTasks: false
+    killReach: false,
+    killAnyone: false,
+    noKillCd: false
 };
