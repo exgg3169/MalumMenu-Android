@@ -1,5 +1,5 @@
 export const Constants = {
-    VERSION: "2.1.1",
+    VERSION: "2.1.5",
     MOD_MENU_ICON_URL: "https://www.innersloth.com/wp-content/uploads/2022/11/ModStamp.png",
 
     GITHUB_URL: "https://github.com/astra1dev/MalumMenu-Android",
