@@ -79,7 +79,7 @@
             "kill_anyone": "Herkesi Öldürebil",
             "no_kill_cd": "Öldürme Bekleme Süresi Yok",
             "kill_everyone": "Herkesi Öldür (Sahtekarken)",
-            "impostor_note": "Sadece gerçekten sahtekarsan çalışır. Herkesi Öldür her hedef için normal öldürme isteği gönderir, kabul etmesi hosta kalmıştır."
+            "impostor_note": "Sadece gerçekten sahtekarsan çalışır. Öldürmeleri ve bekleme süresini host denetler, bu yüzden Bekleme Süresi Yok, Herkesi Öldürebil ve anında Herkesi Öldür sadece host isen veya Serbest Oyun'da çalışır. Diğer lobilerde Herkesi Öldür 30 saniye boyunca dener ve her bekleme süresinde bir kişiyi öldürür."
         },
         "other": {
             "language": "Dil Seç",

@@ -79,7 +79,7 @@
             "kill_anyone": "Jeden töten",
             "no_kill_cd": "Kein Kill-Cooldown",
             "kill_everyone": "Alle töten (als Impostor)",
-            "impostor_note": "Funktioniert nur, wenn du wirklich Impostor bist. Alle töten sendet die normale Kill-Anfrage für jedes Ziel, der Host muss sie annehmen."
+            "impostor_note": "Funktioniert nur, wenn du wirklich Impostor bist. Der Host prüft Kills und den Cooldown, deshalb funktionieren Kein Kill-Cooldown, Jeden töten und sofortiges Alle töten nur als Host oder im Freispiel. In anderen Lobbys versucht Alle töten 30 Sekunden lang und tötet pro Cooldown einen Spieler."
         },
         "other": {
             "language": "Select Language",

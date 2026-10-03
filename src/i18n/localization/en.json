@@ -79,7 +79,7 @@
             "kill_anyone": "Kill Anyone",
             "no_kill_cd": "No Kill Cooldown",
             "kill_everyone": "Kill Everyone (as Impostor)",
-            "impostor_note": "Only works while you really are the impostor. Kill Everyone sends the normal kill request for every target, the host still has to accept it."
+            "impostor_note": "Only works while you really are the impostor. The host checks kills and the cooldown, so No Kill Cooldown, Kill Anyone and instant Kill Everyone only work if you are the host or in Free Play. In other lobbies Kill Everyone keeps trying for 30 seconds and kills one player per cooldown."
         },
         "other": {
             "language": "Select Language",

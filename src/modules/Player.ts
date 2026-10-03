@@ -33,6 +33,11 @@ export class PlayerModule extends BaseModule {
     private ImpostorRole_IsValidTarget: Il2Cpp.Method | null = null;
     private PlayerControl_SetKillTimer: Il2Cpp.Method | null = null;
     private PlayerControl_CmdCheckMurder: Il2Cpp.Method | null = null;
+    private PlayerControl_RpcMurderPlayer: Il2Cpp.Method | null = null;
+
+    private killEveryoneUntil = 0;
+    private nextKillAt = 0;
+    private reportedKillErrors = new Set<string>();
 
     public init(): void {
         this.Vector2 = AssemblyHelper.CoreModule.class("UnityEngine.Vector2");
@@ -61,11 +66,13 @@ export class PlayerModule extends BaseModule {
         this.ImpostorRole_IsValidTarget = impostorRole?.tryMethod("IsValidTarget", 1) ?? null;
         this.PlayerControl_SetKillTimer = this.PlayerControl.tryMethod("SetKillTimer", 1) ?? null;
         this.PlayerControl_CmdCheckMurder = this.PlayerControl.tryMethod("CmdCheckMurder", 1) ?? null;
+        this.PlayerControl_RpcMurderPlayer = this.PlayerControl.tryMethod("RpcMurderPlayer", 2) ?? null;
 
         if (!this.ImpostorRole_FindClosestTarget) Logger.warn(`[${this.name}::init] ImpostorRole.FindClosestTarget not found, Kill Reach unavailable`);
         if (!this.ImpostorRole_IsValidTarget) Logger.warn(`[${this.name}::init] ImpostorRole.IsValidTarget not found, Kill Anyone unavailable`);
         if (!this.PlayerControl_SetKillTimer) Logger.warn(`[${this.name}::init] PlayerControl.SetKillTimer not found, No Kill Cooldown unavailable`);
         if (!this.PlayerControl_CmdCheckMurder) Logger.warn(`[${this.name}::init] PlayerControl.CmdCheckMurder not found, Kill Everyone unavailable`);
+        if (!this.PlayerControl_RpcMurderPlayer) Logger.warn(`[${this.name}::init] PlayerControl.RpcMurderPlayer not found, host kills unavailable`);
     }
 
     public override initHooks(): void {
@@ -75,8 +82,12 @@ export class PlayerModule extends BaseModule {
             // @ts-ignore
             this.ImpostorRole_FindClosestTarget.implementation = function (): Il2Cpp.Object {
                 if (State.killReach) {
-                    const target = module.nearestKillTarget(this as Il2Cpp.Object);
-                    if (target) return target;
+                    try {
+                        const target = module.nearestKillTarget(this as Il2Cpp.Object);
+                        if (target) return target;
+                    } catch (e) {
+                        module.reportKillError("FindClosestTarget", e);
+                    }
                 }
                 return this.method<Il2Cpp.Object>("FindClosestTarget").invoke();
             };
@@ -88,9 +99,39 @@ export class PlayerModule extends BaseModule {
                 const valid = this.method<boolean>("IsValidTarget", 1).invoke(target);
                 if (valid || !State.killAnyone || target.isNull()) return valid;
 
-                // Kill Anyone: also allow ghosts, impostors and players in vents, just not yourself
-                const localData = module.localPlayer.method<Il2Cpp.Object>("get_Data").invoke();
-                return !target.field<boolean>("Disconnected").value && target.field<number>("PlayerId").value !== localData.field<number>("PlayerId").value;
+                try {
+                    // Kill Anyone: also allow ghosts, impostors and players in vents, just not yourself
+                    const localData = module.localPlayer.method<Il2Cpp.Object>("get_Data").invoke();
+                    return !target.field<boolean>("Disconnected").value && target.field<number>("PlayerId").value !== localData.field<number>("PlayerId").value;
+                } catch (e) {
+                    module.reportKillError("IsValidTarget", e);
+                    return valid;
+                }
+            };
+        }
+
+        if (this.PlayerControl_SetKillTimer) {
+            // @ts-ignore
+            this.PlayerControl_SetKillTimer.implementation = function (time: number): void {
+                const local = State.noKillCd && !module.localPlayer.isNull() && (this as Il2Cpp.Object).equals(module.localPlayer);
+                return this.method<void>("SetKillTimer", 1).invoke(local ? 0 : time);
+            };
+        }
+
+        if (this.PlayerControl_CmdCheckMurder) {
+            // @ts-ignore
+            this.PlayerControl_CmdCheckMurder.implementation = function (target: Il2Cpp.Object): void {
+                try {
+                    const wantsBypass = State.noKillCd || State.killAnyone || State.killReach;
+                    if (wantsBypass && module.PlayerControl_RpcMurderPlayer && (this as Il2Cpp.Object).equals(module.localPlayer) && module.isHostLike()) {
+                        // As host nobody else validates the kill, so send the result directly like MalumMenu does
+                        this.method<void>("RpcMurderPlayer", 2).invoke(target, true);
+                        return;
+                    }
+                } catch (e) {
+                    module.reportKillError("CmdCheckMurder", e);
+                }
+                return this.method<void>("CmdCheckMurder", 1).invoke(target);
             };
         }
 
@@ -148,6 +189,7 @@ export class PlayerModule extends BaseModule {
             this.method<void>("Update").invoke();
             ModuleManager.get(VisualModule)?.onHudUpdate(this as Il2Cpp.Object);
             module.applyNoKillCooldown();
+            module.tickKillEveryone();
         };
 
         //@ts-ignore
@@ -294,20 +336,64 @@ export class PlayerModule extends BaseModule {
         return this.killTargets(role)[0];
     }
 
-    /** Sends the normal kill request for every valid target, so it only works while you are the impostor */
+    /** True when this client decides kills itself: lobby host or Free Play */
+    private isHostLike(): boolean {
+        const client = this.AmongUsClient.field<Il2Cpp.Object>("Instance").value;
+        if (client.isNull()) return false;
+        if (client.method<boolean>("get_AmHost").invoke()) return true;
+
+        try {
+            return Number(client.field<number>("NetworkMode").value) === Number(this.NetworkModes.field<number>("FreePlay").value);
+        } catch (e) {
+            return false;
+        }
+    }
+
+    private reportKillError(feature: string, error: unknown): void {
+        const key = `${feature}:${error}`;
+        if (this.reportedKillErrors.has(key)) return;
+        this.reportedKillErrors.add(key);
+        Logger.error(`[${this.name}::${feature}] ${error}`);
+    }
+
+    /** Starts killing every valid target one after another, retrying for up to 30 seconds */
     public killEveryoneAsImpostor(): void {
         const role = this.localRole();
         if (!role || !role.method<boolean>("get_IsImpostor").invoke()) {
             throw new Error("You are not the impostor");
         }
-        if (!this.PlayerControl_CmdCheckMurder) {
-            throw new Error("PlayerControl.CmdCheckMurder not found");
+
+        this.killEveryoneUntil = Date.now() + 30000;
+        this.nextKillAt = 0;
+    }
+
+    private tickKillEveryone(): void {
+        if (!this.killEveryoneUntil) return;
+
+        const now = Date.now();
+        if (now > this.killEveryoneUntil || now < this.nextKillAt) {
+            if (now > this.killEveryoneUntil) this.killEveryoneUntil = 0;
+            return;
         }
 
-        const targets = this.killTargets(role);
-        Logger.debug(`[${this.name}::killEveryoneAsImpostor] Requesting ${targets.length} kills`);
-        for (const target of targets) {
-            this.localPlayer.method<void>("CmdCheckMurder", 1).invoke(target);
+        try {
+            const role = this.localRole();
+            const target = role && role.method<boolean>("get_IsImpostor").invoke() ? this.nearestKillTarget(role) : undefined;
+            if (!target) {
+                this.killEveryoneUntil = 0;
+                return;
+            }
+
+            // Without host rights the host still applies the kill cooldown, so a rejected kill is simply retried
+            if (this.isHostLike() && this.PlayerControl_RpcMurderPlayer) {
+                this.localPlayer.method<void>("RpcMurderPlayer", 2).invoke(target, true);
+            } else {
+                this.localPlayer.method<void>("CmdCheckMurder", 1).invoke(target);
+            }
+            this.nextKillAt = now + 800;
+        } catch (e) {
+            this.killEveryoneUntil = 0;
+            this.reportKillError("killEveryone", e);
         }
     }
 
