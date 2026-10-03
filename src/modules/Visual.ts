@@ -16,8 +16,7 @@ export class VisualModule extends BaseModule {
     private Color!: Il2Cpp.Class;
     private PlayerControl!: Il2Cpp.Class;
 
-    // Time.set_timeScale is stripped from the managed assembly, so it has to be called through its internal call
-    private setTimeScale: NativeFunction<void, [number]> | undefined;
+    private setTimeScale: ((scale: number) => void) | undefined;
 
     private zoomApplied = false;
     private speedApplied = false;
@@ -31,14 +30,13 @@ export class VisualModule extends BaseModule {
         this.Color = AssemblyHelper.CoreModule.class("UnityEngine.Color");
         this.PlayerControl = AssemblyHelper.AssemblyCSharp.class("PlayerControl");
 
-        for (const name of ["UnityEngine.Time::set_timeScale(System.Single)", "UnityEngine.Time::set_timeScale"]) {
-            const address = Il2Cpp.exports.resolveInternalCall(Memory.allocUtf8String(name));
-            if (!address.isNull()) {
-                this.setTimeScale = new NativeFunction(address, "void", ["float"]);
-                break;
-            }
+        const time = AssemblyHelper.CoreModule.class("UnityEngine.Time");
+        const setter = time.tryMethod<void>("set_timeScale", 1);
+        if (setter) {
+            this.setTimeScale = (scale: number) => setter.invoke(scale);
+        } else {
+            Logger.error(`[${this.name}::init] UnityEngine.Time.set_timeScale not found, Speed Up Game is unavailable`);
         }
-        if (!this.setTimeScale) Logger.error(`[${this.name}::init] Could not resolve UnityEngine.Time::set_timeScale`);
     }
 
     /** Runs once per `HudManager.Update`, after the game's own update logic */
