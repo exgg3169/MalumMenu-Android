@@ -38,7 +38,8 @@
             "settings": "Settings",
             "system": "System",
             "game": "Game",
-            "game_speed": "Game Speed"
+            "game_speed": "Game Speed",
+            "lobby": "Lobby"
         },
         "functions": {
             "go_to_main_menu": "Go to Main Menu",
@@ -73,7 +74,11 @@
             "see_roles": "See Roles",
             "game_speed": "Speed Up Game",
             "game_speed_val": "Game Speed: {0}x",
-            "always_show_chat_note": "Only changes something during a round – in the lobby and in meetings the chat is always visible."
+            "always_show_chat_note": "Only changes something during a round – in the lobby and in meetings the chat is always visible.",
+            "unkickable": "Cannot Be Kicked",
+            "capture_host": "Capture Host",
+            "fake_impostor": "Fake Impostor",
+            "unlimited_voting": "Unlimited Voting"
         },
         "other": {
             "language": "Select Language",

@@ -29,6 +29,9 @@ export class PlayerModule extends BaseModule {
     private HudManager_Update!: Il2Cpp.Method;
     private Vent_CanUse!: Il2Cpp.Method;
 
+    private PlayerControl_RpcRemovePlayer: Il2Cpp.Method<void> | null = null;
+    private GameManager_RpcSetHost: Il2Cpp.Method<void> | null = null;
+
     public init(): void {
         this.Vector2 = AssemblyHelper.CoreModule.class("UnityEngine.Vector2");
 
@@ -49,10 +52,58 @@ export class PlayerModule extends BaseModule {
         this.PlayerPurchasesData_GetPurchase = this.PlayerPurchasesData.method<boolean>("GetPurchase");
         this.HudManager_Update = this.HudManager.method<void>("Update");
         this.Vent_CanUse = this.Vent.method<boolean>("CanUse", 3);
+
+        const removePlayerMethod = this.PlayerControl.tryMethod<void>("RpcRemovePlayer", 1);
+        this.PlayerControl_RpcRemovePlayer = removePlayerMethod || null;
+        if (!this.PlayerControl_RpcRemovePlayer) {
+            Logger.warn(`[${this.name}::init] PlayerControl.RpcRemovePlayer not found, Unkickable unavailable`);
+        }
+
+        const GameManager = AssemblyHelper.AssemblyCSharp.tryClass("GameManager");
+        if (GameManager) {
+            const hostMethod = GameManager.tryMethod<void>("RpcSetHost", 1);
+            this.GameManager_RpcSetHost = hostMethod || null;
+            if (!this.GameManager_RpcSetHost) {
+                Logger.warn(`[${this.name}::init] GameManager.RpcSetHost not found, Capture Host unavailable`);
+            }
+        } else {
+            Logger.warn(`[${this.name}::init] GameManager class not found`);
+        }
     }
 
     public override initHooks(): void {
         const module = this;
+
+        if (module.PlayerControl_RpcRemovePlayer) {
+            // @ts-ignore - implementation signature mismatch
+            module.PlayerControl_RpcRemovePlayer.implementation = function (playerId: number): void {
+                const localPlayer = module.localPlayer;
+                const data = localPlayer.method<Il2Cpp.Object>("get_Data").invoke();
+                const currentPlayerId = data.field<number>("PlayerId").value;
+
+                if (State.unkickable && playerId === currentPlayerId) {
+                    Logger.debug(`[${module.name}::RpcRemovePlayer] Blocked removal of local player (unkickable)`);
+                    return;
+                }
+
+                return this.method<void>("RpcRemovePlayer", 1).invoke(playerId);
+            };
+        }
+
+        if (module.GameManager_RpcSetHost) {
+            // @ts-ignore - implementation signature mismatch
+            module.GameManager_RpcSetHost.implementation = function (newHostId: number): void {
+                if (State.captureHost) {
+                    const localPlayer = module.localPlayer;
+                    const data = localPlayer.method<Il2Cpp.Object>("get_Data").invoke();
+                    const myId = data.field<number>("PlayerId").value;
+                    Logger.debug(`[${module.name}::RpcSetHost] Capture Host active, setting host to local player ${myId}`);
+                    return this.method<void>("RpcSetHost", 1).invoke(myId);
+                }
+
+                return this.method<void>("RpcSetHost", 1).invoke(newHostId);
+            };
+        }
 
         this.PlayerPhysics_LateUpdate.implementation = function (): void {
             //const myPlayer = module.PlayerPhysics.field<Il2Cpp.Object>("myPlayer");

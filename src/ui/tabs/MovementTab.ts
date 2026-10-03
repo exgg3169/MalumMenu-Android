@@ -51,5 +51,39 @@ export class MovementTab {
             ),
             page
         );
+
+        add(Widgets.header(I18n.t("menu.sections.lobby")), page);
+        add(
+            Widgets.card(
+                layout.toggle(I18n.t("menu.functions.unkickable"), (state: boolean) => {
+                    State.unkickable = state;
+                })
+            ),
+            page
+        );
+        add(
+            Widgets.card(
+                layout.toggle(I18n.t("menu.functions.capture_host"), (state: boolean) => {
+                    State.captureHost = state;
+                })
+            ),
+            page
+        );
+        add(
+            Widgets.card(
+                layout.toggle(I18n.t("menu.functions.fake_impostor"), (state: boolean) => {
+                    State.fakeImpostor = state;
+                })
+            ),
+            page
+        );
+        add(
+            Widgets.card(
+                layout.toggle(I18n.t("menu.functions.unlimited_voting"), (state: boolean) => {
+                    State.unlimitedVoting = state;
+                })
+            ),
+            page
+        );
     }
 }

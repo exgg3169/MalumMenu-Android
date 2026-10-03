@@ -15,6 +15,7 @@ export class VisualModule extends BaseModule {
     private Camera!: Il2Cpp.Class;
     private Color!: Il2Cpp.Class;
     private PlayerControl!: Il2Cpp.Class;
+    private RoleControl: Il2Cpp.Class | null = null;
 
     private setTimeScale: ((scale: number) => void) | undefined;
 
@@ -30,6 +31,15 @@ export class VisualModule extends BaseModule {
         this.Color = AssemblyHelper.CoreModule.class("UnityEngine.Color");
         this.PlayerControl = AssemblyHelper.AssemblyCSharp.class("PlayerControl");
 
+        let roleClass = AssemblyHelper.AssemblyCSharp.tryClass("RoleBehaviour");
+        if (!roleClass) {
+            roleClass = AssemblyHelper.AssemblyCSharp.tryClass("RoleControl");
+        }
+        this.RoleControl = roleClass || null;
+        if (!this.RoleControl) {
+            Logger.warn(`[${this.name}::init] Role classes not found, Fake Impostor unavailable`);
+        }
+
         const time = AssemblyHelper.CoreModule.class("UnityEngine.Time");
         const setter = time.tryMethod<void>("set_timeScale", 1);
         if (setter) {
@@ -44,6 +54,7 @@ export class VisualModule extends BaseModule {
         this.frame++;
 
         this.safely("zoom", () => this.updateZoom());
+        this.safely("fakeImpostor", () => this.updateFakeImpostor());
 
         if (this.frame % CHAT_REFRESH_INTERVAL === 0) {
             this.safely("chat", () => this.updateChat(hud));
@@ -83,6 +94,44 @@ export class VisualModule extends BaseModule {
 
         this.setTimeScale(State.gameSpeedEnabled ? State.gameSpeed : 1);
         this.speedApplied = State.gameSpeedEnabled;
+    }
+
+    private updateFakeImpostor(): void {
+        if (!State.fakeImpostor || !this.RoleControl) return;
+
+        const localPlayer = this.PlayerControl.field<Il2Cpp.Object>("LocalPlayer").value;
+        if (localPlayer.isNull()) return;
+
+        const data = localPlayer.method<Il2Cpp.Object>("get_Data").invoke();
+        if (data.isNull()) return;
+
+        const currentRole = data.field<Il2Cpp.Object>("Role").value;
+        if (currentRole.isNull()) return;
+
+        const isImpostor = this.isImpostor(currentRole);
+        if (isImpostor) return;
+
+        const GameData = AssemblyHelper.AssemblyCSharp.class("GameData");
+        const allPlayers = GameData.field<Il2Cpp.Object>("AllPlayers").value;
+        const count = allPlayers.method<number>("get_Count").invoke();
+
+        for (let i = 0; i < count; i++) {
+            const player = allPlayers.method<Il2Cpp.Object>("get_Item").invoke(i);
+            if (player.isNull()) continue;
+
+            const role = player.field<Il2Cpp.Object>("Role").value;
+            if (role.isNull()) continue;
+
+            if (this.isImpostor(role)) {
+                try {
+                    data.field<Il2Cpp.Object>("Role").value = role;
+                    Logger.debug(`[${this.name}::updateFakeImpostor] Set to impostor role`);
+                    return;
+                } catch (e) {
+                    Logger.warn(`[${this.name}::updateFakeImpostor] Failed to set role: ${e}`);
+                }
+            }
+        }
     }
 
     private updatePlayerNames(): void {
