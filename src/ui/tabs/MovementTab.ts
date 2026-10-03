@@ -6,6 +6,8 @@ import { Widgets } from "../Widgets";
 
 export class MovementTab {
     static draw(layout: ObsidianLayout, page: Layout) {
+        const toggle = (key: string, onChange: (state: boolean) => void) => add(Widgets.card(layout.toggle(I18n.t(key), onChange)), page);
+
         add(Widgets.header(I18n.t("menu.sections.collision")), page);
         add(
             Widgets.card(
@@ -33,6 +35,11 @@ export class MovementTab {
             ),
             page
         );
+
+        add(Widgets.header(I18n.t("menu.sections.lobby")), page);
+        toggle("menu.functions.unkickable", state => (State.unkickable = state));
+        toggle("menu.functions.capture_host", state => (State.captureHost = state));
+        toggle("menu.functions.fake_impostor", state => (State.fakeImpostor = state));
 
         add(Widgets.header(I18n.t("menu.sections.game_speed")), page);
         const gameSpeedLabel = I18n.t("menu.functions.game_speed_val");

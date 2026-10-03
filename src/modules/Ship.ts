@@ -21,8 +21,10 @@ export class ShipModule extends BaseModule {
     private PlayerControl!: Il2Cpp.Class;
     private ShipStatus!: Il2Cpp.Class;
     private VentilationSystem!: Il2Cpp.Class;
+    private VotingSystem!: Il2Cpp.Class;
 
     private ShipStatus_FixedUpdate!: Il2Cpp.Method;
+    private VotingSystem_CastVote!: Il2Cpp.Method;
 
     public init(): void {
         this.HudManager = AssemblyHelper.AssemblyCSharp.class("HudManager");
@@ -30,8 +32,12 @@ export class ShipModule extends BaseModule {
         this.PlayerControl = AssemblyHelper.AssemblyCSharp.class("PlayerControl");
         this.ShipStatus = AssemblyHelper.AssemblyCSharp.class("ShipStatus");
         this.VentilationSystem = AssemblyHelper.AssemblyCSharp.class("VentilationSystem");
+        this.VotingSystem = AssemblyHelper.AssemblyCSharp.class("VotingSystem");
 
         this.ShipStatus_FixedUpdate = this.ShipStatus.method<void>("FixedUpdate");
+
+        const castVote = this.VotingSystem.tryMethod("CastVote");
+        this.VotingSystem_CastVote = castVote || this.VotingSystem.method<void>("CastVote", 2);
     }
 
     public override initHooks(): void {
@@ -50,6 +56,15 @@ export class ShipModule extends BaseModule {
             }
 
             return this.method<void>("FixedUpdate").invoke();
+        };
+
+        // @ts-ignore
+        this.VotingSystem_CastVote.implementation = function (voterId: number, votedForId: number): void {
+            if (State.unlimitedVoting) {
+                Logger.debug(`[${module.name}] Unlimited voting: ${voterId} voting for ${votedForId}`);
+                return this.method<void>("CastVote", 2).invoke(voterId, votedForId);
+            }
+            return this.method<void>("CastVote", 2).invoke(voterId, votedForId);
         };
     }
 

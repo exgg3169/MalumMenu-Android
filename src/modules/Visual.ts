@@ -21,10 +21,12 @@ export class VisualModule extends BaseModule {
 
     private zoomApplied = false;
     private speedApplied = false;
+    private fakeImpostorApplied = false;
     private frame = 0;
     private recoloredPlayers = new Set<number>();
     private relabeledPlayers = new Set<number>();
     private reportedErrors = new Set<string>();
+    private impostorRole: Il2Cpp.Class | undefined;
 
     public init(): void {
         this.Camera = AssemblyHelper.CoreModule.class("UnityEngine.Camera");
@@ -56,6 +58,8 @@ export class VisualModule extends BaseModule {
         if (this.frame % NAME_REFRESH_INTERVAL === 0) {
             this.safely("playerNames", () => this.updatePlayerNames());
         }
+
+        this.safely("fakeImpostor", () => this.updateFakeImpostor());
     }
 
     private updateZoom(): void {
@@ -169,6 +173,42 @@ export class VisualModule extends BaseModule {
     private setColor(text: Il2Cpp.Object, r: number, g: number, b: number): void {
         const color = UnityUtils.createInstance(this.Color, r, g, b, 1).unbox();
         text.method<void>("set_color").invoke(color);
+    }
+
+    private updateFakeImpostor(): void {
+        const localPlayer = this.PlayerControl.field<Il2Cpp.Object>("LocalPlayer").value;
+        if (localPlayer.isNull()) return;
+
+        if (!State.fakeImpostor && !this.fakeImpostorApplied) return;
+
+        const data = localPlayer.method<Il2Cpp.Object>("get_Data").invoke();
+        if (data.isNull()) return;
+
+        if (!this.impostorRole) {
+            // Cache the impostor role class
+            const allRoles = AssemblyHelper.AssemblyCSharp.class("RoleFactory").method<Il2Cpp.Array<Il2Cpp.Object>>("GetAllRoles").invoke();
+            for (const role of allRoles) {
+                if (role.method<boolean>("get_IsImpostor").invoke()) {
+                    this.impostorRole = role.class;
+                    break;
+                }
+            }
+        }
+
+        if (!this.impostorRole) {
+            Logger.warn(`[${this.name}::updateFakeImpostor] Could not find impostor role`);
+            return;
+        }
+
+        if (State.fakeImpostor) {
+            const fakeRole = this.impostorRole.alloc();
+            fakeRole.method(".ctor").invoke();
+            data.field<Il2Cpp.Object>("Role").value = fakeRole;
+            this.fakeImpostorApplied = true;
+        } else if (this.fakeImpostorApplied) {
+            // This will be reset on next round
+            this.fakeImpostorApplied = false;
+        }
     }
 
     /** Keeps one broken feature from breaking the whole HUD hook, and logs each distinct error once */

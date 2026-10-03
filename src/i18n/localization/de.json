@@ -38,7 +38,8 @@
             "settings": "Einstellungen",
             "system": "System",
             "game": "Spiel",
-            "game_speed": "Spielgeschwindigkeit"
+            "game_speed": "Spielgeschwindigkeit",
+            "lobby": "Lobby"
         },
         "functions": {
             "go_to_main_menu": "Gehe zum Hauptmenü",
@@ -73,7 +74,11 @@
             "see_roles": "Rollen anzeigen",
             "game_speed": "Spiel beschleunigen",
             "game_speed_val": "Spielgeschwindigkeit: {0}x",
-            "always_show_chat_note": "Wirkt nur während einer Runde – in der Lobby und in Meetings ist der Chat immer sichtbar."
+            "always_show_chat_note": "Wirkt nur während einer Runde – in der Lobby und in Meetings ist der Chat immer sichtbar.",
+            "unkickable": "Kann nicht rausgeworfen werden",
+            "capture_host": "Host erfassen",
+            "fake_impostor": "Falscher Impostor",
+            "unlimited_voting": "Unbegrenztes Abstimmen"
         },
         "other": {
             "language": "Select Language",
