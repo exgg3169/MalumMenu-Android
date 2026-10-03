@@ -32,9 +32,12 @@
 - NoClip
 - Speedhack
 
-### ESP
+### Visuals
 
 - No Shadows
+- Reveal Impostors
+- Zoom Out
+- Always Show Chat
 
 ### Roles
 
@@ -43,7 +46,8 @@
 ### Ship
 
 - Call Meeting
-- Sabotage Reactor
+- Sabotage Reactor, O2, Comms & Lights
+- Repair Sabotages
 - Open Sabotage Map
 - Unlock Vents
 - Kick all from Vents
@@ -53,6 +57,7 @@
 
 - Unlock Cosmetics (Hats, Visors, Skins, Pets, Nameplates, Cosmicubes, Bundles)
 - Full Resolution (The game runs at half resolution by default)
+- Custom FPS Limit
 - UwUify Game
 - Keyboard Mode
 

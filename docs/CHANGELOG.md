@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/2.0.0/),
 
 ## [Unreleased]
 
+### Added
+
+- Redesigned menu: tab bar instead of one long list, grouped sections, card-style widgets and a new dark theme
+- The last opened tab and slider values are now remembered between restarts
+- Zoom Out (with adjustable zoom level)
+- Reveal Impostors (impostor names are shown in red)
+- Always Show Chat
+- Sabotage O2, Sabotage Comms, Sabotage Lights and Repair Sabotages
+- Custom FPS Limit
+- Reset All Settings and Copy Debug Info buttons
+- Turkish localization
+
 ## [2.1.1] - 2026-10-01
 
 The released APK comes with game version `19.0.0` (`2026.9.29`).

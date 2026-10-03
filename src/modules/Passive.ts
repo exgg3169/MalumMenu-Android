@@ -1,12 +1,14 @@
 import { AssemblyHelper } from "../core/AssemblyHelper";
 import { BaseModule } from "../core/BaseModule";
 import { Logger } from "../logger/Logger";
+import { State } from "../data/State";
 
 export class PassiveModule extends BaseModule {
     public readonly name = "Passive";
 
     // Classes
     private Screen!: Il2Cpp.Class;
+    private Application!: Il2Cpp.Class;
 
     private ResolutionManager!: Il2Cpp.Class;
 
@@ -16,9 +18,11 @@ export class PassiveModule extends BaseModule {
     private HasResolutionBeenChanged!: boolean;
     private OriginalWidth!: number;
     private OriginalHeight!: number;
+    private OriginalFrameRate: number | undefined;
 
     public init(): void {
         this.Screen = AssemblyHelper.CoreModule.class("UnityEngine.Screen");
+        this.Application = AssemblyHelper.CoreModule.class("UnityEngine.Application");
 
         this.ResolutionManager = AssemblyHelper.AssemblyCSharp.class("ResolutionManager");
 
@@ -52,5 +56,16 @@ export class PassiveModule extends BaseModule {
             Logger.debug(`[${module.name}::ToggleFullResolution] Resetting resolution to ${module.OriginalWidth!}x${module.OriginalHeight!}`);
             module.ResolutionManager_SetResolution.invoke(module.OriginalWidth, module.OriginalHeight, true);
         }
+    }
+
+    public applyFrameRate(): void {
+        if (this.OriginalFrameRate === undefined) {
+            this.OriginalFrameRate = this.Application.method<number>("get_targetFrameRate").invoke();
+            Logger.debug(`[${this.name}::applyFrameRate] Original target frame rate: ${this.OriginalFrameRate}`);
+        }
+
+        const target = State.fpsUnlock ? State.fps : this.OriginalFrameRate;
+        this.Application.method<void>("set_targetFrameRate").invoke(target);
+        Logger.debug(`[${this.name}::applyFrameRate] Target frame rate set to ${target}`);
     }
 }

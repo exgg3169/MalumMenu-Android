@@ -8,11 +8,13 @@ import { Logger } from "../logger/Logger";
 import en from "./localization/en.json";
 import de from "./localization/de.json";
 import ru from "./localization/ru.json";
+import tr from "./localization/tr.json";
 
 const TRANSLATIONS: Record<string, any> = {
     en: en,
     de: de,
-    ru: ru
+    ru: ru,
+    tr: tr
 };
 
 export class I18n {

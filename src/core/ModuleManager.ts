@@ -5,6 +5,7 @@ import { PassiveModule } from "../modules/Passive";
 import { PlayerModule } from "../modules/Player";
 import { ShipModule } from "../modules/Ship";
 import { UwUifyModule } from "../modules/UwUify";
+import { VisualModule } from "../modules/Visual";
 
 import { Logger } from "../logger/Logger";
 
@@ -17,7 +18,8 @@ export class ModuleManager {
         new PassiveModule(),
         new PlayerModule(),
         new ShipModule(),
-        new UwUifyModule()
+        new UwUifyModule(),
+        new VisualModule()
     ];
 
     /** Initializes all modules by calling init() in module */

@@ -4,6 +4,15 @@ import { State } from "../data/State";
 import { UnityUtils } from "../utils/UnityUtils";
 import { Logger } from "../logger/Logger";
 
+// Values of the game's `SystemTypes` enum
+const SystemTypes = {
+    Reactor: 3,
+    Electrical: 7,
+    LifeSupp: 8,
+    Comms: 14,
+    Laboratory: 21
+} as const;
+
 export class ShipModule extends BaseModule {
     public readonly name = "Ship";
 
@@ -63,15 +72,43 @@ export class ShipModule extends BaseModule {
     }
 
     public sabotageReactor(): void {
-        const module = this;
+        this.updateSystem("sabotageReactor", SystemTypes.Reactor, 128);
+    }
 
-        const ShipStatusInstance = module.ShipStatus.field<Il2Cpp.Object>("Instance").value;
+    public sabotageOxygen(): void {
+        this.updateSystem("sabotageOxygen", SystemTypes.LifeSupp, 128);
+    }
+
+    public sabotageComms(): void {
+        this.updateSystem("sabotageComms", SystemTypes.Comms, 128);
+    }
+
+    public sabotageLights(): void {
+        // 128 = flip the switches in the mask (low 5 bits) instead of a single switch
+        this.updateSystem("sabotageLights", SystemTypes.Electrical, 128 | 0b11111);
+    }
+
+    public repairSabotages(): void {
+        for (const system of [SystemTypes.Reactor, SystemTypes.Laboratory, SystemTypes.LifeSupp, SystemTypes.Comms]) {
+            this.updateSystem("repairSabotages", system, 16);
+        }
+    }
+
+    /** Sends `ShipStatus.RpcUpdateSystem`, skipping systems the current map doesn't have */
+    private updateSystem(caller: string, system: number, amount: number): void {
+        const ShipStatusInstance = this.ShipStatus.field<Il2Cpp.Object>("Instance").value;
         if (ShipStatusInstance.isNull()) {
-            Logger.warn(`[${module.name}::sabotageReactor] ShipStatusInstance is null`);
+            Logger.warn(`[${this.name}::${caller}] ShipStatusInstance is null`);
             return;
         }
 
-        ShipStatusInstance.method<void>("RpcUpdateSystem").invoke(3, 128);
+        const systems = ShipStatusInstance.field<Il2Cpp.Object>("Systems").value;
+        if (!systems.method<boolean>("ContainsKey").invoke(system)) {
+            Logger.debug(`[${this.name}::${caller}] System ${system} does not exist on this map`);
+            return;
+        }
+
+        ShipStatusInstance.method<void>("RpcUpdateSystem").invoke(system, amount);
     }
 
     public kickVents(): void {

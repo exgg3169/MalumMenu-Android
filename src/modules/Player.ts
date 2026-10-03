@@ -3,6 +3,8 @@ import { BaseModule } from "../core/BaseModule";
 import { State } from "../data/State";
 import { UnityUtils } from "../utils/UnityUtils";
 import { Logger } from "../logger/Logger";
+import { ModuleManager } from "../core/ModuleManager";
+import { VisualModule } from "./Visual";
 
 export class PlayerModule extends BaseModule {
     public readonly name = "Player";
@@ -102,48 +104,9 @@ export class PlayerModule extends BaseModule {
         };
 
         this.HudManager_Update.implementation = function (): void {
-            const HudManagerInstance = module.HudManager.method<Il2Cpp.Object>("get_Instance").invoke();
-            const localPlayer = module.localPlayer;
-
-            if (HudManagerInstance.isNull() || localPlayer.isNull()) {
-                return this.method<void>("Update").invoke();
-            }
-
-            // NetworkedPlayerInfo
-            const data = localPlayer.method<Il2Cpp.Object>("get_Data").invoke();
-            const impostorVentButton = HudManagerInstance.field<Il2Cpp.Object>("ImpostorVentButton").value;
-            const impostorVentButtonGameObject = UnityUtils.getGameObject(impostorVentButton);
-
-            const shadowQuad = HudManagerInstance.field<Il2Cpp.Object>("ShadowQuad").value;
-            const shadowQuadGameObject = UnityUtils.getGameObject(shadowQuad);
-
-            if (State.noShadows) {
-                shadowQuadGameObject.method<void>("SetActive", 1).invoke(false);
-            } else {
-                shadowQuadGameObject.method<void>("SetActive", 1).invoke(true);
-            }
-
-            let role: Il2Cpp.Object;
-            let canVent: boolean;
-            try {
-                // RoleBehaviour
-                role = data.field<Il2Cpp.Object>("Role").value;
-                canVent = role.field<boolean>("CanVent").value;
-            } catch (e) {
-                Logger.debug(e + " (This error is expected due to Role field not being set yet)");
-                return this.method<void>("Update").invoke();
-            }
-            const isDead = data.field<boolean>("IsDead").value;
-
-            if (isDead) {
-                shadowQuadGameObject.method<void>("SetActive", 1).invoke(false);
-            }
-
-            if (!canVent && !isDead) {
-                impostorVentButtonGameObject.method<void>("SetActive", 1).invoke(State.unlockVents);
-            }
-
-            return this.method<void>("Update").invoke();
+            module.applyHudTweaks();
+            this.method<void>("Update").invoke();
+            ModuleManager.get(VisualModule)?.onHudUpdate(this as Il2Cpp.Object);
         };
 
         //@ts-ignore
@@ -195,6 +158,44 @@ export class PlayerModule extends BaseModule {
             couldUse.value = true;
             return num;
         };
+    }
+
+    private applyHudTweaks(): void {
+        const HudManagerInstance = this.HudManager.method<Il2Cpp.Object>("get_Instance").invoke();
+        const localPlayer = this.localPlayer;
+
+        if (HudManagerInstance.isNull() || localPlayer.isNull()) return;
+
+        // NetworkedPlayerInfo
+        const data = localPlayer.method<Il2Cpp.Object>("get_Data").invoke();
+        const impostorVentButton = HudManagerInstance.field<Il2Cpp.Object>("ImpostorVentButton").value;
+        const impostorVentButtonGameObject = UnityUtils.getGameObject(impostorVentButton);
+
+        const shadowQuad = HudManagerInstance.field<Il2Cpp.Object>("ShadowQuad").value;
+        const shadowQuadGameObject = UnityUtils.getGameObject(shadowQuad);
+
+        // The shadow mask is sized for the default camera, so it breaks when zoomed out
+        shadowQuadGameObject.method<void>("SetActive", 1).invoke(!(State.noShadows || State.zoomOut));
+
+        let role: Il2Cpp.Object;
+        let canVent: boolean;
+        try {
+            // RoleBehaviour
+            role = data.field<Il2Cpp.Object>("Role").value;
+            canVent = role.field<boolean>("CanVent").value;
+        } catch (e) {
+            Logger.debug(e + " (This error is expected due to Role field not being set yet)");
+            return;
+        }
+        const isDead = data.field<boolean>("IsDead").value;
+
+        if (isDead) {
+            shadowQuadGameObject.method<void>("SetActive", 1).invoke(false);
+        }
+
+        if (!canVent && !isDead) {
+            impostorVentButtonGameObject.method<void>("SetActive", 1).invoke(State.unlockVents);
+        }
     }
 
     public completeTask(task: Il2Cpp.Object): void {

@@ -2,7 +2,8 @@
     "languages": {
         "en": "English",
         "de": "German",
-        "ru": "Russian"
+        "ru": "Russian",
+        "tr": "Turkish"
     },
     "menu": {
         "info": {
@@ -10,46 +11,73 @@
             "desc": "v{0} ({1}) — Created by Astral"
         },
         "tabs": {
-            "debug": "<b>——— Debug ———</b>",
-            "movement": "<b>——— Movement ———</b>",
-            "esp": "<b>——— ESP ———</b>",
-            "roles": "<b>——— Roles ———</b>",
-            "ship": "<b>——— Ship ———</b>",
-            "passive": "<b>——— Passive ———</b>",
-            "other": "<b>——— Other ———</b>"
+            "debug": "Debug",
+            "movement": "Movement",
+            "esp": "Visuals",
+            "roles": "Roles",
+            "ship": "Ship",
+            "passive": "Passive",
+            "other": "Settings"
+        },
+        "sections": {
+            "collision": "Collision",
+            "speed": "Speed",
+            "vision": "Vision",
+            "camera": "Camera",
+            "chat": "Chat",
+            "tasks": "Tasks",
+            "meetings": "Meetings",
+            "sabotage": "Sabotage",
+            "vents": "Vents",
+            "account": "Account",
+            "graphics": "Graphics",
+            "fun": "Fun",
+            "input": "Input",
+            "language": "Language",
+            "links": "Links",
+            "settings": "Settings",
+            "system": "System",
+            "game": "Game"
         },
         "functions": {
             "go_to_main_menu": "Go to Main Menu",
-
             "noclip": "NoClip",
             "custom_speed": "Use Custom Speed",
             "speed_val": "Custom Speed: {0} / 20",
-
             "no_shadows": "No Shadows",
-
             "complete_my_tasks": "Complete My Tasks",
-
             "call_meeting": "Call Meeting",
             "sabotage_reactor": "Sabotage Reactor",
             "open_sabotage_map": "Open Sabotage Map",
             "unlock_vents": "Unlock Vents",
             "kick_vents": "Kick All From Vents",
             "walk_in_vents": "Walk In Vents",
-
             "unlock_cosmetics": "Unlock Cosmetics",
             "full_resolution": "Full Resolution",
             "disable_analytics": "Disable Analytics",
-
             "uwuify": "UwU?",
             "keyboard_mode": "Keyboard Mode",
-            "keyboard_mode_note": "Requires a physical keyboard. Touch controls may not work."
+            "keyboard_mode_note": "Requires a physical keyboard. Touch controls may not work.",
+            "reveal_impostors": "Reveal Impostors",
+            "zoom_out": "Zoom Out",
+            "zoom_val": "Zoom: {0}x",
+            "always_show_chat": "Always Show Chat",
+            "sabotage_oxygen": "Sabotage O2",
+            "sabotage_comms": "Sabotage Comms",
+            "sabotage_lights": "Sabotage Lights",
+            "repair_sabotages": "Repair Sabotages",
+            "fps_unlock": "Custom FPS Limit",
+            "fps_val": "FPS Limit: {0}",
+            "exit_game": "Exit Game"
         },
         "other": {
             "language": "Select Language",
             "github_url": "GitHub Repository (Leave a star!)",
             "discord_url": "Discord Server",
             "malummenu_url": "Check Out MalumMenu for PC!",
-            "changelog": "Open Changelog"
+            "changelog": "Open Changelog",
+            "reset_settings": "Reset All Settings",
+            "copy_debug_info": "Copy Debug Info"
         },
         "toasts": {
             "no_overlay_permission": "Overlay permission is needed to show the menu",
@@ -58,7 +86,10 @@
             "hide_callback": "Icon hidden",
             "kill_callback": "Menu killed",
             "exit_game": "Long press button to exit game",
-            "on_locale_changed": "Changed mod menu language to {0}, restart game to apply"
+            "on_locale_changed": "Changed mod menu language to {0}, restart game to apply",
+            "long_press_to_confirm": "Long press to confirm",
+            "settings_reset": "Settings reset, restart game to apply",
+            "copied": "Copied to clipboard"
         }
     }
 }

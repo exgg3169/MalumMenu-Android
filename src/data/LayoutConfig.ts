@@ -2,26 +2,41 @@ import { ObsidianConfig as ObsCfg, systemAccentColor } from "frida-java-menu";
 
 import { I18n } from "../i18n/I18n";
 
+const accent = systemAccentColor("#E5484D");
+
+export const Theme = {
+    accent,
+    text: "#F2F4F8",
+    mutedText: "#8B93A7",
+    card: "#1B1F2A",
+    cardPressed: "#252A38",
+    tabActive: accent,
+    tabInactive: "#20242F",
+    divider: "#2A2F3D",
+    danger: "#C0392B",
+    cornerRadius: 28
+} as const;
+
 export const ObsidianConfig: ObsCfg = {
     color: {
-        primaryText: "#FFFFFF",
-        secondaryText: "#FFFFFF",
-        buttonBg: systemAccentColor("#326647"),
-        layoutBg: "#1C1C1C",
-        collapseBg: "#3B3B3B",
-        categoryBg: "#296368",
-        menu: "#0D0D0D",
-        tabFocusedBg: "#454545",
-        tabUnfocusedBg: "#3E3E3E",
-        hideFg: "#55514F",
-        closeFg: "#751616"
+        primaryText: Theme.text,
+        secondaryText: Theme.text,
+        buttonBg: Theme.cardPressed,
+        layoutBg: "#12151C",
+        collapseBg: Theme.card,
+        categoryBg: Theme.card,
+        menu: "#0B0D12",
+        tabFocusedBg: Theme.cardPressed,
+        tabUnfocusedBg: Theme.card,
+        hideFg: Theme.mutedText,
+        closeFg: accent
     },
     menu: {
-        width: 350,
-        height: 200,
+        width: 380,
+        height: 260,
         x: 100,
-        y: 100,
-        cornerRadius: 45
+        y: 80,
+        cornerRadius: 36
     },
     icon: {
         size: 50,

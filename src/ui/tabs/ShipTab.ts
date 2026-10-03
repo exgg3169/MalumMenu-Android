@@ -1,55 +1,33 @@
-import { add, CENTER, ObsidianLayout } from "frida-java-menu";
+import { add, Layout, ObsidianLayout } from "frida-java-menu";
 
 import { I18n } from "../../i18n/I18n";
 import { State } from "../../data/State";
+import { Theme } from "../../data/LayoutConfig";
 import { ModuleManager } from "../../core/ModuleManager";
 import { UnityUtils } from "../../utils/UnityUtils";
 import { ShipModule } from "../../modules/Ship";
+import { Widgets } from "../Widgets";
 
 export class ShipTab {
-    static draw(layout: ObsidianLayout) {
-        const ship = layout.textView(I18n.t("menu.tabs.ship"));
-        ship.gravity = CENTER;
-        add(ship);
+    static draw(layout: ObsidianLayout, page: Layout) {
+        const ship = () => ModuleManager.get(ShipModule);
+        const button = (key: string, action: () => void) => add(Widgets.card(layout.button(I18n.t(key), UnityUtils.run(action)), Theme.cardPressed), page);
+        const toggle = (key: string, onChange: (state: boolean) => void) => add(Widgets.card(layout.toggle(I18n.t(key), onChange)), page);
 
-        add(
-            layout.button(
-                I18n.t("menu.functions.call_meeting"),
-                UnityUtils.run(() => ModuleManager.get(ShipModule)?.callMeeting())
-            )
-        );
+        add(Widgets.header(I18n.t("menu.sections.meetings")), page);
+        button("menu.functions.call_meeting", () => ship()?.callMeeting());
 
-        add(
-            layout.button(
-                I18n.t("menu.functions.sabotage_reactor"),
-                UnityUtils.run(() => ModuleManager.get(ShipModule)?.sabotageReactor())
-            )
-        );
+        add(Widgets.header(I18n.t("menu.sections.sabotage")), page);
+        button("menu.functions.open_sabotage_map", () => ship()?.openSabotageMap());
+        button("menu.functions.sabotage_reactor", () => ship()?.sabotageReactor());
+        button("menu.functions.sabotage_oxygen", () => ship()?.sabotageOxygen());
+        button("menu.functions.sabotage_comms", () => ship()?.sabotageComms());
+        button("menu.functions.sabotage_lights", () => ship()?.sabotageLights());
+        button("menu.functions.repair_sabotages", () => ship()?.repairSabotages());
 
-        add(
-            layout.button(
-                I18n.t("menu.functions.open_sabotage_map"),
-                UnityUtils.run(() => ModuleManager.get(ShipModule)?.openSabotageMap())
-            )
-        );
-
-        add(
-            layout.toggle(I18n.t("menu.functions.unlock_vents"), (state: boolean) => {
-                State.unlockVents = state;
-            })
-        );
-
-        add(
-            layout.button(
-                I18n.t("menu.functions.kick_vents"),
-                UnityUtils.run(() => ModuleManager.get(ShipModule)?.kickVents())
-            )
-        );
-
-        add(
-            layout.toggle(I18n.t("menu.functions.walk_in_vents"), (state: boolean) => {
-                State.walkInVents = state;
-            })
-        );
+        add(Widgets.header(I18n.t("menu.sections.vents")), page);
+        toggle("menu.functions.unlock_vents", state => (State.unlockVents = state));
+        toggle("menu.functions.walk_in_vents", state => (State.walkInVents = state));
+        button("menu.functions.kick_vents", () => ship()?.kickVents());
     }
 }

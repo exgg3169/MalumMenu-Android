@@ -7,8 +7,15 @@ export const State = {
     unlockVents: false,
     walkInVents: false,
 
+    zoomOut: false,
+    zoom: 2,
+    revealImpostors: false,
+    alwaysShowChat: false,
+
     unlockCosmetics: false,
     disableAnalytics: false,
     uwuifyMode: false,
-    keyboardMode: false
+    keyboardMode: false,
+    fpsUnlock: false,
+    fps: 60
 };

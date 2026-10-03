@@ -1,0 +1,95 @@
+{
+    "languages": {
+        "en": "İngilizce",
+        "de": "Almanca",
+        "ru": "Rusça",
+        "tr": "Türkçe"
+    },
+    "menu": {
+        "info": {
+            "title": "MalumMenu",
+            "desc": "v{0} ({1}) — Astral tarafından yapıldı"
+        },
+        "tabs": {
+            "debug": "Hata Ayıklama",
+            "movement": "Hareket",
+            "esp": "Görsel",
+            "roles": "Roller",
+            "ship": "Gemi",
+            "passive": "Pasif",
+            "other": "Ayarlar"
+        },
+        "sections": {
+            "collision": "Çarpışma",
+            "speed": "Hız",
+            "vision": "Görüş",
+            "camera": "Kamera",
+            "chat": "Sohbet",
+            "tasks": "Görevler",
+            "meetings": "Toplantılar",
+            "sabotage": "Sabotaj",
+            "vents": "Havalandırmalar",
+            "account": "Hesap",
+            "graphics": "Grafik",
+            "fun": "Eğlence",
+            "input": "Kontroller",
+            "language": "Dil",
+            "links": "Bağlantılar",
+            "settings": "Ayarlar",
+            "system": "Sistem",
+            "game": "Oyun"
+        },
+        "functions": {
+            "go_to_main_menu": "Ana Menüye Dön",
+            "noclip": "Duvarlardan Geç (NoClip)",
+            "custom_speed": "Özel Hızı Kullan",
+            "speed_val": "Özel Hız: {0} / 20",
+            "no_shadows": "Gölgeleri Kaldır",
+            "reveal_impostors": "Sahtekarları Göster",
+            "zoom_out": "Uzaklaştır",
+            "zoom_val": "Yakınlaştırma: {0}x",
+            "always_show_chat": "Sohbeti Her Zaman Göster",
+            "complete_my_tasks": "Görevlerimi Tamamla",
+            "call_meeting": "Toplantı Çağır",
+            "sabotage_reactor": "Reaktörü Sabote Et",
+            "sabotage_oxygen": "Oksijeni Sabote Et",
+            "sabotage_comms": "İletişimi Sabote Et",
+            "sabotage_lights": "Işıkları Sabote Et",
+            "repair_sabotages": "Sabotajları Onar",
+            "open_sabotage_map": "Sabotaj Haritasını Aç",
+            "unlock_vents": "Havalandırmaların Kilidini Aç",
+            "kick_vents": "Herkesi Havalandırmadan At",
+            "walk_in_vents": "Havalandırmada Yürü",
+            "unlock_cosmetics": "Kozmetiklerin Kilidini Aç",
+            "full_resolution": "Tam Çözünürlük",
+            "disable_analytics": "Analitiği Kapat",
+            "fps_unlock": "Özel FPS Limiti",
+            "fps_val": "FPS Limiti: {0}",
+            "uwuify": "UwU?",
+            "keyboard_mode": "Klavye Modu",
+            "keyboard_mode_note": "Fiziksel klavye gerektirir. Dokunmatik kontroller çalışmayabilir.",
+            "exit_game": "Oyundan Çık"
+        },
+        "other": {
+            "language": "Dil Seç",
+            "github_url": "GitHub Deposu (Yıldız bırak!)",
+            "discord_url": "Discord Sunucusu",
+            "malummenu_url": "PC için MalumMenu'ya göz at!",
+            "changelog": "Değişiklik Günlüğünü Aç",
+            "reset_settings": "Tüm Ayarları Sıfırla",
+            "copy_debug_info": "Hata Ayıklama Bilgisini Kopyala"
+        },
+        "toasts": {
+            "no_overlay_permission": "Menüyü göstermek için üstte gösterme izni gerekli",
+            "hide_button": "Gizle",
+            "close_button": "Kapat",
+            "hide_callback": "Simge gizlendi",
+            "kill_callback": "Menü kapatıldı",
+            "exit_game": "Oyundan çıkmak için butona uzun bas",
+            "on_locale_changed": "Mod menü dili {0} olarak değiştirildi, uygulamak için oyunu yeniden başlat",
+            "long_press_to_confirm": "Onaylamak için uzun bas",
+            "settings_reset": "Ayarlar sıfırlandı, uygulamak için oyunu yeniden başlat",
+            "copied": "Panoya kopyalandı"
+        }
+    }
+}
