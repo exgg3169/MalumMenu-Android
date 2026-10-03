@@ -39,7 +39,8 @@
             "system": "System",
             "game": "Game",
             "game_speed": "Game Speed",
-            "impostor": "Impostor"
+            "impostor": "Impostor",
+            "life": "Life"
         },
         "functions": {
             "go_to_main_menu": "Go to Main Menu",
@@ -79,7 +80,10 @@
             "kill_anyone": "Kill Anyone",
             "no_kill_cd": "No Kill Cooldown",
             "kill_everyone": "Kill Everyone (as Impostor)",
-            "impostor_note": "Only works while you really are the impostor. The host checks kills and the cooldown, so No Kill Cooldown, Kill Anyone and instant Kill Everyone only work if you are the host or in Free Play. In other lobbies Kill Everyone keeps trying for 30 seconds and kills one player per cooldown."
+            "impostor_note": "Only works while you really are the impostor. The host checks kills and the cooldown, so No Kill Cooldown, Kill Anyone and instant Kill Everyone only work if you are the host or in Free Play. In other lobbies Kill Everyone keeps trying for 30 seconds and kills one player per cooldown.",
+            "auto_respawn": "Respawn When Killed",
+            "ghost_mode": "Ghost Mode",
+            "life_note": "Only changes your own game: you see yourself alive or as a ghost, but the host and the other players still see your real state."
         },
         "other": {
             "language": "Select Language",

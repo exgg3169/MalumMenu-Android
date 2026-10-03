@@ -39,7 +39,8 @@
             "system": "System",
             "game": "Spiel",
             "game_speed": "Spielgeschwindigkeit",
-            "impostor": "Impostor"
+            "impostor": "Impostor",
+            "life": "Leben"
         },
         "functions": {
             "go_to_main_menu": "Gehe zum Hauptmenü",
@@ -79,7 +80,10 @@
             "kill_anyone": "Jeden töten",
             "no_kill_cd": "Kein Kill-Cooldown",
             "kill_everyone": "Alle töten (als Impostor)",
-            "impostor_note": "Funktioniert nur, wenn du wirklich Impostor bist. Der Host prüft Kills und den Cooldown, deshalb funktionieren Kein Kill-Cooldown, Jeden töten und sofortiges Alle töten nur als Host oder im Freispiel. In anderen Lobbys versucht Alle töten 30 Sekunden lang und tötet pro Cooldown einen Spieler."
+            "impostor_note": "Funktioniert nur, wenn du wirklich Impostor bist. Der Host prüft Kills und den Cooldown, deshalb funktionieren Kein Kill-Cooldown, Jeden töten und sofortiges Alle töten nur als Host oder im Freispiel. In anderen Lobbys versucht Alle töten 30 Sekunden lang und tötet pro Cooldown einen Spieler.",
+            "auto_respawn": "Nach dem Tod wiederbeleben",
+            "ghost_mode": "Geistermodus",
+            "life_note": "Ändert nur dein eigenes Spiel: Du siehst dich lebendig oder als Geist, Host und Mitspieler sehen weiterhin deinen echten Zustand."
         },
         "other": {
             "language": "Select Language",

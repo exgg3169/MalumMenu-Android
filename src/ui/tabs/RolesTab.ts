@@ -57,5 +57,24 @@ export class RolesTab {
             page
         );
         add(Widgets.note(I18n.t("menu.functions.impostor_note")), page);
+
+        add(Widgets.header(I18n.t("menu.sections.life")), page);
+        add(
+            Widgets.card(
+                layout.toggle(I18n.t("menu.functions.auto_respawn"), (state: boolean) => {
+                    State.autoRespawn = state;
+                })
+            ),
+            page
+        );
+        add(
+            Widgets.card(
+                layout.toggle(I18n.t("menu.functions.ghost_mode"), (state: boolean) => {
+                    State.ghostMode = state;
+                })
+            ),
+            page
+        );
+        add(Widgets.note(I18n.t("menu.functions.life_note")), page);
     }
 }

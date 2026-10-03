@@ -37,6 +37,8 @@ export class PlayerModule extends BaseModule {
 
     private killEveryoneUntil = 0;
     private nextKillAt = 0;
+    private ghostApplied = false;
+    private nextReviveAt = 0;
     private reportedKillErrors = new Set<string>();
 
     public init(): void {
@@ -190,6 +192,7 @@ export class PlayerModule extends BaseModule {
             ModuleManager.get(VisualModule)?.onHudUpdate(this as Il2Cpp.Object);
             module.applyNoKillCooldown();
             module.tickKillEveryone();
+            module.tickLifeCheats();
         };
 
         //@ts-ignore
@@ -334,6 +337,43 @@ export class PlayerModule extends BaseModule {
 
     private nearestKillTarget(role: Il2Cpp.Object): Il2Cpp.Object | undefined {
         return this.killTargets(role)[0];
+    }
+
+    /** Local only, like MalumMenu's Set Fake Alive: the game keeps telling everyone else the real state */
+    private tickLifeCheats(): void {
+        if (!State.ghostMode && !State.autoRespawn && !this.ghostApplied) return;
+
+        try {
+            const localPlayer = this.localPlayer;
+            if (localPlayer.isNull()) return;
+
+            const data = localPlayer.method<Il2Cpp.Object>("get_Data").invoke();
+            if (data.isNull()) return;
+            const dead = data.field<boolean>("IsDead").value;
+
+            if (State.ghostMode) {
+                if (!dead && !this.ghostApplied) {
+                    // DeathReason.Exile = 0, assignGhostRole = true
+                    localPlayer.method<void>("Die", 2).invoke(0, true);
+                }
+                this.ghostApplied = true;
+                return;
+            }
+
+            if (this.ghostApplied) {
+                this.ghostApplied = false;
+                if (dead) localPlayer.method<void>("Revive").invoke();
+                return;
+            }
+
+            const now = Date.now();
+            if (State.autoRespawn && dead && now >= this.nextReviveAt) {
+                this.nextReviveAt = now + 1500;
+                localPlayer.method<void>("Revive").invoke();
+            }
+        } catch (e) {
+            this.reportKillError("lifeCheats", e);
+        }
     }
 
     /** True when this client decides kills itself: lobby host or Free Play */

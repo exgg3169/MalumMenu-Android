@@ -24,5 +24,8 @@ export const State = {
 
     killReach: false,
     killAnyone: false,
-    noKillCd: false
+    noKillCd: false,
+
+    autoRespawn: false,
+    ghostMode: false
 };

@@ -39,7 +39,8 @@
             "system": "Sistem",
             "game": "Oyun",
             "game_speed": "Oyun Hızı",
-            "impostor": "Sahtekar"
+            "impostor": "Sahtekar",
+            "life": "Hayat"
         },
         "functions": {
             "go_to_main_menu": "Ana Menüye Dön",
@@ -79,7 +80,10 @@
             "kill_anyone": "Herkesi Öldürebil",
             "no_kill_cd": "Öldürme Bekleme Süresi Yok",
             "kill_everyone": "Herkesi Öldür (Sahtekarken)",
-            "impostor_note": "Sadece gerçekten sahtekarsan çalışır. Öldürmeleri ve bekleme süresini host denetler, bu yüzden Bekleme Süresi Yok, Herkesi Öldürebil ve anında Herkesi Öldür sadece host isen veya Serbest Oyun'da çalışır. Diğer lobilerde Herkesi Öldür 30 saniye boyunca dener ve her bekleme süresinde bir kişiyi öldürür."
+            "impostor_note": "Sadece gerçekten sahtekarsan çalışır. Öldürmeleri ve bekleme süresini host denetler, bu yüzden Bekleme Süresi Yok, Herkesi Öldürebil ve anında Herkesi Öldür sadece host isen veya Serbest Oyun'da çalışır. Diğer lobilerde Herkesi Öldür 30 saniye boyunca dener ve her bekleme süresinde bir kişiyi öldürür.",
+            "auto_respawn": "Öldürülünce Geri Doğ",
+            "ghost_mode": "Hayalet Modu",
+            "life_note": "Sadece kendi oyununu değiştirir: kendini canlı ya da hayalet görürsün, host ve diğer oyuncular gerçek durumunu görmeye devam eder."
         },
         "other": {
             "language": "Dil Seç",
