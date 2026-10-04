@@ -6,7 +6,6 @@ import {
     app,
     CENTER,
     GONE,
-    HORIZONTAL,
     Layout,
     MATCH_PARENT,
     ObsidianLayout,
@@ -97,38 +96,24 @@ export class Widgets {
         return row;
     }
 
-    /** Builds a horizontal, scrollable row of tab chips and returns its root view */
-    static tabBar(labels: string[], onSelect: (index: number) => void): { root: Layout; select: (index: number) => void } {
-        const scroll = new Layout(Java.use("android.widget.HorizontalScrollView"));
-        scroll.instance.setHorizontalScrollBarEnabled(false);
-        scroll.layoutParams = Layout.LinearLayoutParams(MATCH_PARENT, WRAP_CONTENT);
-        scroll.padding = [this.dp(8), this.dp(2), this.dp(8), this.dp(6)];
+    /** Full-width category button in the style of "▽ Player Menu ▽"; `setOpen` flips the arrows and colors */
+    static categoryButton(label: string, onClick: () => void): { view: TextView; setOpen: (open: boolean) => void } {
+        const view = new TextView(label);
+        view.textSize = 14;
+        view.gravity = CENTER;
+        view.padding = [this.dp(12), this.dp(11), this.dp(12), this.dp(11)];
+        view.layoutParams = this.marginParams(MATCH_PARENT, 6, 3);
+        view.onClickListener = onClick;
 
-        const row = new Layout(Api.LinearLayout);
-        row.orientation = HORIZONTAL;
-        add(row, scroll);
-
-        const chips = labels.map((label, index) => {
-            const chip = new TextView(label);
-            chip.textSize = 13;
-            chip.gravity = CENTER;
-            chip.padding = [this.dp(14), this.dp(7), this.dp(14), this.dp(7)];
-            chip.layoutParams = this.marginParams(WRAP_CONTENT, 3, 0);
-            chip.onClickListener = () => select(index);
-            add(chip, row);
-            return chip;
-        });
-
-        const select = (index: number) => {
-            chips.forEach((chip, i) => {
-                const active = i === index;
-                chip.background = this.rounded(active ? Theme.tabActive : Theme.tabInactive, 60);
-                chip.textColor = active ? "#FFFFFF" : Theme.mutedText;
-            });
-            onSelect(index);
+        const setOpen = (open: boolean) => {
+            const arrow = open ? "△" : "▽";
+            view.text = `<b>${arrow}  ${label}  ${arrow}</b>`;
+            view.background = this.rounded(open ? Theme.tabActive : Theme.tabInactive, 18);
+            view.textColor = open ? "#FFFFFF" : Theme.text;
         };
+        setOpen(false);
 
-        return { root: scroll, select };
+        return { view, setOpen };
     }
 
     /** Runs a button action on the Unity thread and shows a toast if it fails instead of failing silently */

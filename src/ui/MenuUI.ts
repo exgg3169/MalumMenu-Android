@@ -1,6 +1,6 @@
 import Java from "frida-java-bridge";
 
-import { Api, ObsidianLayout, waitForInit, Composer, Layout, add, sharedPreferences } from "frida-java-menu";
+import { ObsidianLayout, waitForInit, Composer, Layout, add, sharedPreferences } from "frida-java-menu";
 
 import { Constants } from "../data/Constants";
 import { ObsidianConfig } from "../data/LayoutConfig";
@@ -63,35 +63,39 @@ export class MenuUI {
         const composer = new Composer(title, desc, layout);
         composer.icon(Constants.MOD_MENU_ICON_URL, "Web");
 
-        const pages = TABS.map(tab => {
+        const pages: Layout[] = [];
+        const buttons: { setOpen: (open: boolean) => void }[] = [];
+
+        // Accordion: one category open at a time, tapping the open one folds it again
+        let openIndex = -1;
+        const open = (index: number) => {
+            openIndex = index;
+            pages.forEach((page, i) => {
+                Widgets.show(page, i === index);
+                buttons[i].setOpen(i === index);
+            });
+            sharedPreferences.putInt(SELECTED_TAB_KEY, index);
+        };
+
+        TABS.forEach((tab, index) => {
             const page = Widgets.page();
             try {
                 tab.draw(layout, page);
             } catch (error: any) {
                 Logger.errorToast(error, `[${MenuUI.tag}::build] Failed to draw ${tab.key} tab`);
             }
-            add(page);
-            return page;
-        });
 
-        const tabBar = Widgets.tabBar(
-            TABS.map(tab => `${tab.icon}  ${I18n.t(`menu.tabs.${tab.key}`)}`),
-            index => {
-                pages.forEach((page, i) => Widgets.show(page, i === index));
-                layout.proxy.instance.scrollTo(0, 0);
-                sharedPreferences.putInt(SELECTED_TAB_KEY, index);
-            }
-        );
+            const button = Widgets.categoryButton(`${tab.icon}  ${I18n.t(`menu.tabs.${tab.key}`)}`, () => {
+                open(openIndex === index ? -1 : index);
+            });
+            add(button.view);
+            add(page);
+            pages.push(page);
+            buttons.push(button);
+        });
 
         const savedTab = sharedPreferences.getInt(SELECTED_TAB_KEY);
-        const initialTab = savedTab >= 0 && savedTab < TABS.length ? savedTab : 0;
-
-        // Composer queues its own views on the main thread, so this runs after `me` is populated:
-        // index 2 places the tab bar between the subtitle and the scrollable content
-        Java.scheduleOnMainThread(() => {
-            layout.me.instance.addView.overload("android.view.View", "int").call(layout.me.instance, Java.cast(tabBar.root.instance, Api.View), 2);
-            tabBar.select(initialTab);
-        });
+        Java.scheduleOnMainThread(() => open(savedTab >= 0 && savedTab < TABS.length ? savedTab : -1));
 
         composer.show();
     }
